@@ -1,5 +1,6 @@
-export const names:Record<string,string>={KEY:'ほしのかけら',PUNI:'プニ',BOTTY:'ボッティ',BALLOONER:'フワリン','TOX MUNCHER':'ドクモグ','LAVA HOPPER':'マグマピョン','KING PUNI':'おおきな プニ',POTION:'ポーション','BIG POTION':'おおきな ポーション',ANTIDOTE:'どくけし','LAVA CHARM':'ほのおよけ','ARMOR CELL':'まもりのたま',SHIELD:'まもりのたま',CANDY:'キャンディ',RAINBOW:'にじのたま',HEART:'ポーション',STAR:'ほしのたま','MEGA STAR':'にじのたま','TOX FILTER':'どくよけ','AMMO CELL':'ひかりのたま','BUBBLE MODULE':'あわバスター','STAR MODULE':'ほしバスター','POP UPGRADE':'ポップバスター 2','BUBBLE UPGRADE':'あわバスター 2','NOVA UPGRADE':'にじバスター'};
+export const names:Record<string,string>={KATANA:'カタナ',SAMURAI:'さむらい',KEY:'ほしのかけら',PUNI:'プニ',BOTTY:'ボッティ',BALLOONER:'フワリン','TOX MUNCHER':'ドクモグ','LAVA HOPPER':'マグマピョン','KING PUNI':'おおきな プニ',POTION:'ポーション','BIG POTION':'おおきな ポーション',ANTIDOTE:'どくけし','LAVA CHARM':'ほのおよけ','ARMOR CELL':'まもりのたま',SHIELD:'まもりのたま',CANDY:'キャンディ',RAINBOW:'にじのたま',HEART:'ポーション',STAR:'ほしのたま','MEGA STAR':'にじのたま','TOX FILTER':'どくよけ','AMMO CELL':'ひかりのたま','BUBBLE MODULE':'あわバスター','STAR MODULE':'ほしバスター','POP UPGRADE':'ポップバスター 2','BUBBLE UPGRADE':'あわバスター 2','NOVA UPGRADE':'にじバスター'};
 export const itemInfo:Record<string,{icon:string,effect:string,use:string}>={
+ KATANA:{icon:'⚔️',effect:'ちかくの てきを まとめて なぎはらう！',use:'タップか クリックで きる。とおくへは とどかないよ'},
  KEY:{icon:'⭐',effect:'にじのほしの かけらだよ',use:'みっつ そろうと にじのほしに なるよ'},
  POTION:{icon:'🧴',effect:'たいりょくを かいふくするよ',use:'たいりょくが へったら つかおう'},
  'BIG POTION':{icon:'🧴',effect:'たいりょくを たくさん かいふくするよ',use:'たいりょくが へったら つかおう'},

@@ -101,3 +101,5 @@ Factory music final render after correction: 60.95s, peak .333, RMS .042, no cli
 2026-10-01 難易度・死亡選択・撃破演出・音楽改訂：通常敵9/15/22体、通常敵HP倍率維持、全敵サイズ20%増。ボスHP230/540/1800。毒・まひ3秒・全方向弾、巡回、被弾揺れ。ブラウザ81項目／Vitest23項目／Production Build成功。死亡時の誤タップ再開防止と終了選択も検証。
 
 最新改訂：通常敵15/22/32体へ増員。23単体テスト成功。特設ページ・説明書・利用規約を390px幅で確認、横はみ出しなし。
+
+Samurai/katana revision: 24 unit tests passed; 90 browser checks passed including decline/accept warning, sealed room, high champion HP, reward drop, pickup and one-hit melee. Production build passed.

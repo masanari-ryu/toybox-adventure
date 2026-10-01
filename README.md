@@ -87,3 +87,5 @@ npm run test:e2e
 - 利用規約：特設ページの「りようきやく」
 
 通常敵はステージ順に15・22・32体（各ステージのボスを除く）。通常敵の耐久度は維持しています。mainへのプッシュ後、GitHub Actionsがテスト・ビルド・GitHub Pages公開を実行します。
+
+Optional stage-two samurai room: warning and cancel/accept before opening, 1100 HP champion, melee / spread / paralysis / radial attacks, katana reward (240 damage, 5.2m plus enemy radius, omnidirectional cleave, line-of-sight required). Normal enemy counts remain 15 / 22 / 32, excluding bosses and summons.
