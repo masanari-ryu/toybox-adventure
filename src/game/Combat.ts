@@ -1,3 +1,4 @@
+import {thunderbolt} from './Thunderbolt';
 import {enemySizeMultiplier} from './EnemyScale';
 import {challenges} from './Challenge';
 import * as T from 'three';
@@ -14,6 +15,7 @@ import {patrolTarget} from '../ai/Patrol';
 import {route} from '../world/Navigation';
 export function fire(g:Game){const w=g.input.weapon;if(w===3){slash(g);return;}if(g.time<g.shotTime||w===2&&g.energy<12)return;g.shotTime=g.time+[.19,.65,.48][w]*(g.arsenal.levels[w]?.75:1);if(w===2)g.energy-=12;g.recoil=.07;g.sound.effect([850,430,1200][w]+g.arsenal.levels[w]*140);const aim=g.input.tapAim;const d=aim?new T.Vector3(aim.x,aim.y,.5).unproject(g.camera).sub(g.camera.position).normalize():new T.Vector3(0,0,-1).applyQuaternion(g.camera.quaternion);g.input.tapAim=null;
  if(g.input.touch){let best=.965-Math.min(.01,g.failures*.003);for(const e of g.enemies)if(e.alive&&(e.kind!=='KING PUNI'||g.gate)&&lineOfSight(g.position.x,g.position.z,e.group.position.x,e.group.position.z,g.gate)){const dir=e.group.position.clone().add(new T.Vector3(0,e.kind==='KING PUNI'?2.2*e.baseScale:e.baseScale,0)).sub(g.position).normalize(),dot=dir.dot(d);if(dot>best){best=dot;d.lerp(dir,aim?1:.18).normalize();}}}
+ if(w===2){thunderbolt(g,d);return;}
  const m=mesh(w===2?new T.OctahedronGeometry(.25,1):new T.SphereGeometry(w===1?.38:.1,12,8),[0xffdd79,0x8ef3e2,0xe2acff][w]);m.position.copy(g.position).addScaledVector(d,.8);g.scene.add(m);g.shots.push({m,v:d.multiplyScalar(w===1?19:48),life:3,damage:[18,42,95][w]*(g.arsenal.levels[w]?1.65:1)*(g.buffs.has('RAINBOW')?1.6:1),enemy:false,kind:w,pierced:new Set()});}
 export function updateEnemies(g:Game,dt:number){for(const e of g.enemies){if(!e.alive||e.kind==='SAMURAI'&&!doors[5]?.open||e.kind==='KING PUNI'&&!g.gate)continue;const p=e.group.position,dist=Math.hypot(g.position.x-p.x,g.position.z-p.z),t=difficulty[e.tier];e.cooldown-=dt;
  const visible=noticesPlayer(p.x,p.z,e.group.rotation.y,g.position.x,g.position.z,t.detect,e.brain.state!=='Idle',g.gate);const target=e.brain.update(p.x,p.z,visible,{x:g.position.x,z:g.position.z},g.time,e.cooldown);e.state=e.brain.state;e.animate(g.time,e.state==='Chase'||e.state==='Search');e.group.scale.setScalar(e.baseScale*(g.time<e.brain.surprisedUntil?.92:1));

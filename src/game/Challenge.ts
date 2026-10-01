@@ -33,3 +33,21 @@ export function challengeSpawns(stage:Stage,level:number):Stage['enemies']{
  }
  return result;
 }
+/** Scale supplies only; keys, batteries and weapon rewards stay unique. */
+export function challengeItems(stage:Stage,level:number):Stage['items']{
+ const multiplier=[1,1.5,2,2][level],supplies=new Set(['POTION','BIG POTION','ANTIDOTE','LAVA CHARM','ARMOR CELL','AMMO CELL','CANDY','RAINBOW']);
+ const base=stage.items.filter(([kind])=>supplies.has(kind)),result=stage.items.map(i=>[...i] as Stage['items'][number]),layout=makeLayout(stage);
+ const safe=(x:number,z:number)=>layout[Math.floor(z/4)]?.[Math.floor(x/4)]==='.';
+ for(let n=0;n<Math.ceil(base.length*multiplier)-base.length;n++){
+  const [kind,x,z,color]=base[n%base.length];let placed=false;
+  for(let a=0;a<160;a++){const angle=(a+n*13)*2.399963,r=1.5+(a%10)*.3,nx=x+Math.cos(angle)*r,nz=z+Math.sin(angle)*r;
+   if(![[0,0],[.5,0],[-.5,0],[0,.5],[0,-.5]].every(([dx,dz])=>safe(nx+dx,nz+dz)))continue;
+   if(stage.doors.some(d=>Math.hypot(nx-d.x,nz-d.z)<1.6)||stage.switches.some(s=>Math.hypot(nx-s.x,nz-s.z)<1.4)||result.some(([,ix,iz])=>Math.hypot(nx-ix,nz-iz)<1.4))continue;
+   if([...stage.pools,...stage.lava].some(p=>Math.abs(nx-p.x)<p.rx+.8&&Math.abs(nz-p.z)<p.rz+.8))continue;
+   if(Array.from({length:11},(_,i)=>i/10).some(t=>!safe(x+(nx-x)*t,z+(nz-z)*t)))continue;
+   result.push([kind,nx,nz,color]);placed=true;break;
+  }
+  if(!placed)throw new Error(`No safe supply position: ${stage.name} ${kind}`);
+ }
+ return result;
+}
