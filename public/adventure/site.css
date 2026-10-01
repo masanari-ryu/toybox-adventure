@@ -3,3 +3,5 @@
 img{height:auto}
 
 header{background:#fffdf7}.play{background:#a9eccb;color:#143d35}.play:hover{background:#ffe29b}.strip{background:#d9f4e5;color:#205644}.hero-art:before,.story .big-star{color:#efb340}.hero-art .caption{color:#755011}.control{background:#fffdf7}
+
+.brand img{display:block;width:210px;height:auto}.hero h1.game-logo{margin:14px 0 20px;line-height:0;max-width:620px}.game-logo img{display:block;width:100%;height:auto;filter:drop-shadow(0 8px 12px #3452)}@media(max-width:600px){.brand img{width:160px}.hero h1.game-logo{margin:18px 0}}
