@@ -1,6 +1,6 @@
 import {it,expect} from 'vitest';
 import {stages} from '../src/stages/Stages';
-import {configureStage,wall,layout,canMove} from '../src/world/layout';
+import {configureStage,wall,layout,canMove,lineOfSight} from '../src/world/layout';
 import {doors,switches} from '../src/world/Threats';
 import {Brain} from '../src/ai/Brain';
 import {names,itemInfo,visibleTextValid} from '../src/ui/Text';
@@ -14,3 +14,16 @@ it('rejects all visible Latin letters and Han characters in UI data',()=>{for(co
 it('increases density by stage while keeping spawns clear of the entrance and walls',()=>{const s=stages[0];const opening=s.enemies.filter(([kind,x])=>kind!=='KING PUNI'&&x<38),later=s.enemies.filter(([kind,x,z])=>kind!=='KING PUNI'&&x>38&&z>30),final=s.enemies.filter(([kind,x,z])=>kind!=='KING PUNI'&&x>38&&z<30);expect([opening.length,later.length,final.length]).toEqual([8,9,10]);expect(s.enemies.every(([,x,z])=>Math.hypot(x-s.start[0],z-s.start[1])>14)).toBe(true);for(let n=0;n<3;n++){configureStage(n);for(const [,x,z]of stages[n].enemies)expect(canMove(x,z,true),`stage ${n} enemy ${x},${z}`).toBe(true);}configureStage(0);expect(stages.map(s=>s.enemies.filter(([kind])=>kind!=='KING PUNI'&&kind!=='SAMURAI').length)).toEqual([27,42,62]);expect(stages.map(s=>s.boss.hp)).toEqual([420,950,2800]);});
 
 it('makes each playable dungeon larger, with a locked reward room beyond its boss',()=>{const sizes:number[]=[];for(let n=0;n<3;n++){configureStage(n);for(const d of doors)d.open=true;sizes.push(reachable(...stages[n].start).size);expect(stages[n].enemies.filter(([k])=>k==='KING PUNI')).toHaveLength(1);expect(stages[n].switches.some(s=>s.door===stages[n].boss.exitDoor)).toBe(false);}expect(sizes[1]).toBeGreaterThan(sizes[0]);expect(sizes[2]).toBeGreaterThan(sizes[1]);configureStage(0);});
+
+it('seals the optional samurai room on every side while the normal route remains playable',()=>{
+ configureStage(1);for(const d of doors)d.open=true;doors[5].open=false;
+ const s=stages[1],outside=reachable(...s.start),samurai=s.enemies.find(([k])=>k==='SAMURAI')!;
+ expect(known(outside,samurai[1],samurai[2])).toBe(false);
+ expect(known(outside,s.boss.x,s.boss.z)).toBe(true);
+ for(const sw of s.switches)expect(known(outside,sw.x,sw.z)).toBe(true);
+ const inside=reachable(samurai[1],samurai[2]);expect(known(inside,...s.start)).toBe(false);
+ expect(known(inside,s.boss.x,s.boss.z)).toBe(false);
+ for(const cell of inside)expect(outside.has(cell)).toBe(false);
+ expect(lineOfSight(22,30,samurai[1],samurai[2],true)).toBe(false);doors[5].open=true;expect(known(reachable(...s.start),samurai[1],samurai[2])).toBe(true);expect(lineOfSight(22,30,samurai[1],samurai[2],true)).toBe(true);expect(lineOfSight(34,14,samurai[1],samurai[2],true)).toBe(false);expect(lineOfSight(22,-2,samurai[1],samurai[2],true)).toBe(false);
+ doors[5].open=false;configureStage(0);
+});
