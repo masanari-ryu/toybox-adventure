@@ -98,3 +98,8 @@ Optional stage-two samurai room: warning and cancel/accept before opening, 1100 
 
 ### Train-only play
 Open `/?train=outdoor` for the daylight railway, or `/?train=space` for the planet and star railway. These routes bypass the dungeon, start only after a user gesture, and restart the same railway after arrival or a retry. Both are included in the production build. Scenery uses original painted canvas textures for sky, nebulae, planet bands, grass/flowers, and toy metal panels.
+
+### Challenge selection
+Title choices: Easy retains current balance; Normal uses 1.5× regular enemies and 1.3× all enemy HP; Hard 2× / 1.5×; Nightmare 2.5× / 2×. Fractional counts round up. Bosses and samurai remain unique. Reinforcements stay in their original rooms with a clear entrance, walls and doorways. Train targets also scale. Completing the Hard campaign unlocks Nightmare for the browser via localStorage; blocked storage retains the unlock for the current session. Restart preserves selected challenge. No campaign saves or offline play are provided.
+
+The web manifest supplies standalone landscape launch and home-screen icons. Actual install availability and rotation depend on device/browser support. Landing page and manual explain adding to the home screen, the current combat/katana/train progression, difficulty multipliers and local unlock storage.
