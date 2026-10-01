@@ -1,0 +1,18 @@
+import type {Game} from '../game/Game';
+import {buildBlaster} from '../game/Blaster';
+import {weaponNames} from '../game/Progression';
+import {names} from './Text';
+import {stages} from '../stages/Stages';
+import {layout,keys} from '../world/layout';
+import {doors,switches,pools,lavaPools} from '../world/Threats';
+export const el=(id:string)=>document.getElementById(id)!;
+export function updateHud(g:Game){const bossName=['プニの リーダー','こうじょうの プニ','おおきな プニ'][g.stageIndex];el('bossname').textContent=bossName;const boss=g.enemies.find(e=>e.kind==='KING PUNI');el('bossbar').hidden=!(boss?.alive&&g.gate);if(boss)el('bosshp').style.width=`${Math.max(0,boss.hp/boss.maxHp*100)}%`;el('hp').textContent=String(Math.ceil(g.hp));el('hpbar').style.width=`${g.hp}%`;el('score').textContent=String(g.score);el('keycount').textContent='★ '.repeat(g.keyCount)+'☆ '.repeat(3-g.keyCount);
+ const stamp=`${g.input.weapon}/${g.arsenal.levels[g.input.weapon]}`;if(stamp!==g.gunStamp){g.gunStamp=stamp;buildBlaster(g.gun,g.input.weapon,g.arsenal.levels[g.input.weapon]);g.gun.scale.setScalar(1+g.input.weapon*.12);}
+ el('weaponname').textContent=weaponNames[g.input.weapon][g.arsenal.levels[g.input.weapon]];el('energy').textContent=`★ ${Math.floor(g.energy)}`;el('area').textContent=stages[g.stageIndex].name;
+ el('objective').textContent=g.bossClear?(g.stageFragment?'ひかる わっかへ すすもう':'おくの へやで ほしを みつけよう'):g.gate?`${bossName}を たおそう`:g.stageIndex===0?'スイッチを おして おくへ すすもう':'ダンジョンの おくへ すすもう';
+ el('armor').textContent=`まもり ${Math.ceil(g.supplies.armor)}`;const count=g.selectedItem===0?g.supplies.potions+g.supplies.bigPotions:g.supplies.antidotes;el('item-icon').textContent=g.selectedItem===0?'🧴':'🌿';el('item-count').textContent=String(count);el('item-select').setAttribute('aria-label',g.selectedItem===0?'ポーションを えらぶ':'どくけしを えらぶ');el('buffs').textContent=Array.from(g.buffs.keys()).map(k=>names[k]??'').join(' · ');
+}
+export function drawMap(g:Game){const c=(el('map') as HTMLCanvasElement).getContext('2d')!;c.clearRect(0,0,290,180);const s=9,ox=14,oy=10;for(const v of g.fog.visited){const [x,z]=v.split(',').map(Number);c.fillStyle=layout[z]?.[x]==='#'?'#b1bbde':'#a8e8da';c.globalAlpha=layout[z]?.[x]==='#'?.6:.3;c.fillRect(ox+x*s,oy+z*s,8,8);}c.globalAlpha=1;
+ for(const k of keys)if(g.fog.known(k.x,k.z)&&!g.stageFragment){c.fillStyle='#ffe07b';c.fillText('★',ox+k.x/4*s-4,oy+k.z/4*s+4);}const stage=stages[g.stageIndex];if(g.fog.known(...stage.exit)){c.fillStyle='#aaffdf';c.fillText('◎',ox+stage.exit[0]/4*s,oy+stage.exit[1]/4*s);}
+ for(const p of [...pools,...lavaPools])if(g.fog.known(p.x,p.z)){c.fillStyle=lavaPools.includes(p)?'#ff9662':'#95d66b';c.fillRect(ox+p.x/4*s-3,oy+p.z/4*s-3,6,6);}for(const d of doors)if(g.fog.known(d.x,d.z)){c.fillStyle=d.open?'#7de6be':'#e883a0';c.fillRect(ox+d.x/4*s-3,oy+d.z/4*s-2,6,4);}for(const sw of switches)if(g.fog.known(sw.x,sw.z)){c.fillStyle='#8dcfff';c.fillText('•',ox+sw.x/4*s,oy+sw.z/4*s);}if(stage.bossGate&&g.fog.known(stage.bossGate[0]*4+2,stage.bossGate[1]*4+2)){c.fillStyle='#d8a7ff';c.fillText('▣',ox+stage.bossGate[0]*s,oy+stage.bossGate[1]*s);}
+ for(const item of g.world.items)if(!item.taken&&g.fog.known(item.x,item.z)&&item.kind.includes('POTION')){c.fillStyle='#f3a9ce';c.fillText('+',ox+item.x/4*s,oy+item.z/4*s);}c.save();c.translate(ox+g.position.x/4*s,oy+g.position.z/4*s);c.rotate(-g.yaw);c.fillStyle='white';c.beginPath();c.moveTo(0,-6);c.lineTo(4,5);c.lineTo(0,2);c.lineTo(-4,5);c.closePath();c.fill();c.restore();}

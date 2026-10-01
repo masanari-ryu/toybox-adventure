@@ -1,0 +1,13 @@
+import './style.css';
+import {Game} from './game/Game';
+document.querySelector('#app')!.innerHTML=`
+<canvas id="scene" aria-label="おもちゃの せかい"></canvas>
+<div id="hud"><div class="top"><div class="health"><small>♥ たいりょく</small><b id="hp">100</b><div><i id="hpbar"></i></div></div><div class="mission"><small id="area">あさの おもちゃひろば</small><b id="objective">ほしのかけらを さがそう</b><span id="keycount">☆ ☆ ☆</span></div><div class="score"><small>てんすう</small><b id="score">0</b></div><button id="pause" aria-label="ひとやすみ">Ⅱ</button></div>
+<div id="danger"></div><div id="threat"></div><div id="bossbar" hidden><span id="bossname">おおきな プニ</span><div><i id="bosshp"></i></div></div><button id="interact" hidden>◎ おす</button><div id="crosshair">＋</div><div id="toast"></div><div id="buffs"></div>
+<div id="supplies"><button id="item-select" aria-label="アイテムを えらぶ"><span id="item-icon">🧴</span><span id="item-count">0</span></button><button id="item-use">つかう</button><span id="armor">まもり 0</span><div id="item-picker" hidden><button id="pick-potion">🧴 ポーション</button><button id="pick-antidote">🌿 どくけし</button></div></div>
+<button id="weapon" aria-label="ぶきを かえる"><small>ぶきを かえる</small><b id="weaponname">ポップバスター</b><span id="energy">★ 100</span></button><button id="mapbutton" aria-label="ちず"><span>ちず <i>⌖</i></span><canvas id="map" width="290" height="180"></canvas></button>
+<div id="touch"><div id="look" aria-label="ゆびで あそぶ"></div></div></div>
+<section id="overlay"><div class="eyebrow">あさから よるまで おもちゃばこで だいぼうけん！</div><h1>おもちゃばこ<br><em>だいぼうけん</em></h1><p id="description">みっつの ほしを みつけて<br>おもちゃのせかいを たすけよう！</p><div class="chips"><span>3つの せかい</span><span>3つの ほし</span><span>おおきな ぼうけん</span></div><button id="start">はじめる ↗</button><button id="quit" hidden>やめる</button><button id="restart" hidden>はじめから ↻</button><div class="instructions">うえへ スワイプで まえ・したへ スワイプで うしろ<br>タップした ところへ うつ・ピンチでも いどう<br>マウスと キーボードでも あそべるよ</div><footer>みっつの ほしを みつけて おもちゃのせかいを たすけよう！</footer></section>
+<section id="card" hidden role="dialog" aria-modal="true"><div class="card-box"><div id="card-icon">⭐</div><h2 id="card-title"></h2><p id="card-description"></p><button id="card-close">わかった！ ↗</button></div></section>
+<div id="orientation" hidden><span>↻</span><b>よこにして あそんでね</b><p>おもちゃのせかいが ひろく みえるよ</p></div>`;
+export const game=new Game();

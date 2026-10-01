@@ -1,0 +1,22 @@
+import {Synth} from './instruments/Synth';import {scores,sectionAt,clearNotes,Theme} from './music/score';
+export class MusicManager {synth:Synth;theme:Theme='title';requested:Theme='title';step=0;next=0;intensity=0;targetIntensity=0;enabled=true;paused=false;fanfare=false;timer:number;bar=0;scheduled=0;
+constructor(public ctx:AudioContext){this.synth=new Synth(ctx);this.next=ctx.currentTime+.08;this.timer=window.setInterval(()=>this.schedule(),25);}
+setStage(n:number){this.setMode((['stage','factory','castle'] as Theme[])[n]);}
+setMode(theme:Theme){this.requested=theme;}
+setCombat(n:number){this.targetIntensity=Math.min(1,n/3);}
+volume(){const g=this.synth.music.gain;g.cancelScheduledValues(this.ctx.currentTime);g.setTargetAtTime(this.enabled?(this.paused?.12:.6):0,this.ctx.currentTime,.12);}
+setEnabled(b:boolean){this.enabled=b;this.volume();}
+setPaused(b:boolean){this.paused=b;this.volume();}
+schedule(){if(this.fanfare)return;if(this.ctx.state!=='running')return;if(this.next<this.ctx.currentTime-.3)this.next=this.ctx.currentTime+.05;while(this.next<this.ctx.currentTime+.14){if(this.step%16===0){if(this.requested!==this.theme){this.theme=this.requested;this.step=0;this.synth.music.gain.setTargetAtTime(.12,this.next,.06);this.synth.music.gain.setTargetAtTime(this.enabled?.6:0,this.next+.15,.25);}this.intensity+=(this.targetIntensity-this.intensity)*.6;}this.tick(this.next);this.next+=60/scores[this.theme].tempo/4;this.step=(this.step+1)%512;this.scheduled++;}}
+tick(t:number){const score=scores[this.theme],bar=Math.floor(this.step/16),s=this.step%16,sec=sectionAt(bar),beat=60/score.tempo,sw=s%2?beat*score.swing:0;this.bar=bar;const time=t+sw,chord=score.progression[bar%4],intro=sec==='intro',brk=sec==='break',boss=this.theme==='boss',combat=this.intensity>.35;const mix=this.theme==='title'?.8:1;
+if(s===0)this.synth.setTiming?.(score.tempo,this.theme==='factory',t);
+if(!brk||bar%4>=2){if((score.kicks??[0,8]).includes(s)||(!score.kicks&&!intro&&[6,14].includes(s))||(boss&&s===11))this.synth.kick(time,(boss?.52:.43)*mix);if((score.snares??[4,12]).includes(s)){this.synth.noiseHit(time,'snare',.14*mix);this.synth.noiseHit(time+.015,'clap',.045*mix,.15);}if(score.hat.includes(s))this.synth.noiseHit(time,'hat',(s%4===2?.035:.019)*mix,s%4===2?.4:-.35);if((combat||boss)&&[3,7,11,15].includes(s))this.synth.percussion(time,.035);if(bar%4===3&&s>=13&&!intro)this.synth.noiseHit(time,'snare',.055+(s-13)*.018,(s-14)*.2);}
+if(!brk){let b=score.bass[s];if(combat&&[3,7,15].includes(s))b=[7,12,19][s%3];if(b>=0&&(!intro||bar>=2))this.synth.voice(score.root-24+chord[0]+b,time,beat*.35,'bass',(boss?.23:.19)*mix);}
+if((score.chordSteps??[0,7,10]).includes(s))for(let n=0;n<chord.length;n++)this.synth.voice(score.root+chord[n],time,beat*(s===0?1.5:.6),'chord',.035*mix,(n-1.5)*.27);
+if((score.arpSteps?score.arpSteps.includes(s):s%2===0)&&(!intro||bar>=2)&&!brk){const n=chord[(s/2+bar)%4]+score.root+12;this.synth.voice(n,time,beat*.3,'pluck',.045*mix,Math.sin(s+bar)*.65);}
+if(!intro&&!brk){let note=score.melody[bar%4][s];if(note>=0){if(sec==='B')note+=bar%2===0?12:0;if(sec==='final'&&s>=8)note+=12;if((bar%8===7)&&s===15)note=19;this.synth.voice(score.root+note,time,beat*(s%4===0?.65:.36),score.leadKind??'lead',.085*mix,bar%2?.12:-.12);}}
+if(bar%8===7&&s===8)this.synth.noiseHit(time,'fx',.035);if(bar%8===0&&s===0){this.synth.voice(score.root+24,time,beat*1.3,'pluck',.07,.5);this.synth.voice(score.root+31,time+beat*.25,beat,'pluck',.035,-.5);}if(brk&&s%4===0)this.synth.voice(score.root+chord[s/4],time,beat*1.4,'pluck',.065,Math.sin(s)*.4);
+}
+clear(){if(this.fanfare)return;this.fanfare=true;this.synth.stopAll();const start=this.ctx.currentTime+.25;this.synth.music.gain.setTargetAtTime(.02,this.ctx.currentTime,.08);this.synth.music.gain.setTargetAtTime(this.enabled?.48:0,start,.08);for(let n=0;n<clearNotes.length;n++){const t=start+n*.22;this.synth.voice(clearNotes[n],t,.42,'lead',.12,n%2?.18:-.18);if(n%3===0){this.synth.kick(t,.35);this.synth.noiseHit(t,'clap',.1);}}for(let beat=0;beat<12;beat++){const t=start+beat*.5;for(const note of [60,64,67,71])this.synth.voice(note+(beat>7?5:0),t,.48,'chord',.05);this.synth.voice(36+(beat>7?5:0),t,.35,'bass',.16);}for(const note of [72,76,79,84])this.synth.voice(note,start+6,1.6,'chord',.065);this.synth.music.gain.setTargetAtTime(0,start+7.5,.3);}
+restart(){this.synth.stopAll();this.fanfare=false;this.step=0;this.next=this.ctx.currentTime+.1;this.theme=this.requested='stage';this.paused=false;this.volume();}
+}
