@@ -11,8 +11,7 @@ export function facingPlayer(x:number,z:number,yaw:number,px:number,pz:number){
  const dx=px-x,dz=pz-z;
  return dx*dx+dz*dz<.0001||(-Math.sin(yaw)*dx-Math.cos(yaw)*dz)>=0;
 }
-export function noticesPlayer(x:number,z:number,yaw:number,px:number,pz:number,range:number,alert:boolean,gate:boolean){
- if(!alert&&!facingPlayer(x,z,yaw,px,pz))return false;
+export function noticesPlayer(x:number,z:number,_yaw:number,px:number,pz:number,range:number,_alert:boolean,gate:boolean){
  const sameRoom=roomAt(activeStage,x,z)===roomAt(activeStage,px,pz);
  return (sameRoom||Math.hypot(px-x,pz-z)<range)&&lineOfSight(x,z,px,pz,gate);
 }

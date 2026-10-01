@@ -3,7 +3,7 @@ export class Brain {
  state:AiState='Idle';last={x:0,z:0};until=0;surprisedUntil=0;nextReaction=0;
  hit(x:number,z:number,now:number){this.last={x,z};this.until=now+16;this.state='Alert';if(now>=this.nextReaction){this.surprisedUntil=now+.22;this.nextReaction=now+1;}}
  update(x:number,z:number,visible:boolean,player:{x:number,z:number},now:number,cooldown:number){
- if(visible){this.last={...player};this.until=now+9;if(this.state==='Idle'){this.state='Detect';this.surprisedUntil=now+.8;}}
+ if(visible){this.last={...player};this.until=now+9;if(this.state==='Idle'){this.state='Detect';this.surprisedUntil=now;}}
  if(now<this.surprisedUntil)return this.last;
  if(!visible&&now>=this.until){this.state='Idle';return null;}
  const d=Math.hypot(this.last.x-x,this.last.z-z);

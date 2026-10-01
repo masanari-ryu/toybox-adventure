@@ -5,10 +5,10 @@ import {doors} from '../src/world/Threats';
 import {Brain} from '../src/ai/Brain';
 it('detects a front-facing player across the same floor beyond the old short range',()=>{
  configureStage(0);expect(noticesPlayer(26,30,Math.PI,26,42,7,false,false)).toBe(true);
- const brain=new Brain();brain.update(26,30,true,{x:26,z:42},1,0);expect(brain.state).toBe('Detect');brain.update(26,30,true,{x:26,z:42},2,0);expect(brain.state).toBe('Chase');
+ const brain=new Brain();brain.update(26,30,true,{x:26,z:42},1,0);expect(brain.state).toBe('Chase');brain.update(26,30,true,{x:26,z:42},2,0);expect(brain.state).toBe('Chase');
 });
-it('ignores a player behind an idle enemy, even nearby, but reacts to being hit',()=>{
- configureStage(0);expect(facingPlayer(26,30,0,26,34)).toBe(false);expect(noticesPlayer(26,30,0,26,34,7,false,false)).toBe(false);
+it('detects a player behind an idle enemy through unobstructed sight',()=>{
+ configureStage(0);expect(facingPlayer(26,30,0,26,34)).toBe(false);expect(noticesPlayer(26,30,0,26,34,7,false,false)).toBe(true);
  const brain=new Brain();brain.hit(26,34,1);expect(noticesPlayer(26,30,0,26,34,7,brain.state!=='Idle',false)).toBe(true);expect(brain.state).toBe('Alert');
 });
 it('keeps other rooms and closed doors or machine cover from revealing a player',()=>{
