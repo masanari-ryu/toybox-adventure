@@ -1,0 +1,10 @@
+import {it,expect} from 'vitest';
+import * as T from 'three';
+import {Brain} from '../src/ai/Brain';
+import {updateEnemies} from '../src/game/Combat';
+import {configureStage} from '../src/world/layout';
+import {stages} from '../src/stages/Stages';
+import type {Game} from '../src/game/Game';
+import type {Enemy} from '../src/game/Enemy';
+it('deploys progressively more plastic infantry',()=>{expect(stages.map(s=>s.enemies.filter(([kind])=>kind==='INFANTRY').length)).toEqual([6,10,14]);});
+it('infantry telegraphs a punch and never fires projectiles',()=>{configureStage(1);const e={kind:'INFANTRY',alive:true,group:new T.Group(),brain:new Brain(),tier:1,baseScale:1,animate:()=>{},cooldown:0,stunned:0,telegraph:0,home:{x:22,z:30}} as unknown as Enemy;e.group.position.set(22,0,30);e.brain.hit(22,28,0);const hits:number[]=[];const g={time:2,position:new T.Vector3(22,1.65,28),enemies:[e],gate:true,stageIndex:1,failures:0,shots:[],hurt:(n:number)=>hits.push(n),routes:new Map(),routeTimes:new Map()} as unknown as Game;updateEnemies(g,.016);expect(e.telegraph).toBeGreaterThan(g.time);expect(hits).toEqual([]);g.time=3;updateEnemies(g,.016);expect(hits).toEqual([12]);expect(g.shots).toEqual([]);configureStage(0);});

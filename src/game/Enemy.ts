@@ -1,9 +1,10 @@
+import {buildInfantry} from './Infantry';
 import {Brain} from '../ai/Brain';
 import * as T from 'three';import {mesh} from '../world/World';import {glow} from '../world/Art';import {mergeStaticModel} from './MergeModel';import {creatureSkin,applyCreatureTextures} from './CreatureSkin';
-export type EnemyKind='PUNI'|'BOTTY'|'BALLOONER'|'KING PUNI'|'TOX MUNCHER'|'LAVA HOPPER'|'SAMURAI';
+export type EnemyKind='INFANTRY'|'PUNI'|'BOTTY'|'BALLOONER'|'KING PUNI'|'TOX MUNCHER'|'LAVA HOPPER'|'SAMURAI';
 export class Enemy {
- attackCycle=0;home:{x:number;z:number};brain=new Brain();baseScale=1;group=new T.Group();body=new T.Group();legs:T.Object3D[]=[];hp:number;state='Idle';cooldown=0;alive=true;telegraph=0;stunned=0;radius:number;alert=false;tier=0;maxHp=0;
- constructor(public kind:EnemyKind,x:number,z:number){this.home={x,z};const boss=kind==='KING PUNI';this.hp=boss?750:kind==='BOTTY'?85:55;this.radius=boss?2.3:.85;this.maxHp=this.hp;this.group.add(this.body);if(kind==='SAMURAI')this.samurai();else if(kind==='TOX MUNCHER')this.tox();else if(kind==='LAVA HOPPER')this.hopper();else if(kind==='BOTTY')this.scarab();else if(kind==='BALLOONER')this.manta();else this.jester(boss);applyCreatureTextures(this.body);mergeStaticModel(this.body,this.legs);this.group.position.set(x,0,z);this.group.traverse(o=>{if(o instanceof T.Mesh){o.castShadow=true;o.receiveShadow=true;}});}
+ dashUntil=0;dashX=0;dashZ=0;dashHit=false;sword:T.Object3D|null=null;attackCycle=0;home:{x:number;z:number};brain=new Brain();baseScale=1;group=new T.Group();body=new T.Group();arms:T.Object3D[]=[];legs:T.Object3D[]=[];hp:number;state='Idle';cooldown=0;alive=true;telegraph=0;stunned=0;radius:number;alert=false;tier=0;maxHp=0;
+ constructor(public kind:EnemyKind,x:number,z:number){this.home={x,z};const boss=kind==='KING PUNI';this.hp=boss?750:kind==='BOTTY'?85:55;this.radius=boss?2.3:.85;this.maxHp=this.hp;this.group.add(this.body);if(kind==='INFANTRY'){const limbs=buildInfantry(this.body);this.legs=limbs.legs;this.arms=limbs.arms;}else if(kind==='SAMURAI')this.samurai();else if(kind==='TOX MUNCHER')this.tox();else if(kind==='LAVA HOPPER')this.hopper();else if(kind==='BOTTY')this.scarab();else if(kind==='BALLOONER')this.manta();else this.jester(boss);applyCreatureTextures(this.body);mergeStaticModel(this.body,this.legs);this.group.position.set(x,0,z);this.group.traverse(o=>{if(o instanceof T.Mesh){o.castShadow=true;o.receiveShadow=true;}});}
  part(g:T.BufferGeometry,c:number,x=0,y=0,z=0){const m=mesh(g,c,x,y,z);this.body.add(m);return m;}
  eye(x:number,y:number,z:number,size:number){const ring=this.part(new T.TorusGeometry(size,.06,8,24),0xe8b879,x,y,z);const core=this.part(new T.SphereGeometry(size*.72,16,12),0xffd573,x,y,z-.03);core.material=glow(0xffc857);const slit=this.part(new T.BoxGeometry(size*.13,size*1.1,.07),0x25113e,x,y,z-size*.65);return ring;}
  limb(points:T.Vector3[],color:number,width=.1){return this.part(new T.TubeGeometry(new T.CatmullRomCurve3(points),16,width,6,false),color);}
@@ -25,8 +26,8 @@ export class Enemy {
    const shoulder=this.part(new T.CapsuleGeometry(.25,.5,6,12),0xffc779,a*.9,1.95,0);shoulder.rotation.z=a*.7;
    const leg=this.part(new T.CapsuleGeometry(.2,.65,6,12),0x273852,a*.4,.45,0);this.legs.push(leg);
   }
-  const sword=this.part(new T.CylinderGeometry(.06,.11,2.8,4),0xb1fff1,1.2,1.7,-.55);sword.rotation.z=-.45; sword.material=glow(0x77e6dc);
+  const sword=this.part(new T.CylinderGeometry(.06,.11,2.8,4),0xb1fff1,1.2,1.7,-.55);this.sword=sword;sword.rotation.z=-.45; sword.material=glow(0x77e6dc);
   const guard=this.part(new T.TorusGeometry(.2,.05,8,20),0xffdb86,.7,.6,-.55);guard.rotation.x=Math.PI/2;
  }
- animate(t:number,moving:boolean){this.body.position.y=Math.sin(t*(moving?11:2)+this.group.position.x)*.06;for(let n=0;n<this.legs.length;n++)this.legs[n].rotation.x=moving?Math.sin(t*11+n*Math.PI)*.28:0;if(this.kind==='LAVA HOPPER')this.body.position.y=Math.abs(Math.sin(t*4))*1.1;if(this.kind==='BALLOONER')this.body.rotation.z=Math.sin(t*3)*.12;}
+ animate(t:number,moving:boolean){this.body.position.y=Math.sin(t*(moving?11:2)+this.group.position.x)*.06;for(let n=0;n<this.legs.length;n++)this.legs[n].rotation.x=moving?Math.sin(t*11+n*Math.PI)*.28:0;for(let n=0;n<this.arms.length;n++)this.arms[n].rotation.x=this.telegraph>t?-1.5: moving?Math.sin(t*7+n*Math.PI)*.35:0;if(this.kind==='LAVA HOPPER')this.body.position.y=Math.abs(Math.sin(t*4))*1.1;if(this.kind==='BALLOONER')this.body.rotation.z=Math.sin(t*3)*.12;}
 }

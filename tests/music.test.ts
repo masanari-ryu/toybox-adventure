@@ -27,3 +27,7 @@ it('gives each stage its own melody, bass, groove and arrangement',()=>{
  expect(a.melody).not.toEqual(b.melody);expect(b.melody).not.toEqual(c.melody);expect(a.melody).not.toEqual(c.melody);
  expect(b.bass).not.toEqual(c.bass);expect(b.kicks).not.toEqual(c.kicks);expect(b.chordSteps).not.toEqual(c.chordSteps);expect(c.leadKind).toBe('pluck');
 });
+
+it('schedules only finite notes across every bar, theme and combat variation',()=>{
+ for(const theme of Object.keys(scores)){for(const intensity of [0,1]){let notes=0;const synth={setTiming:()=>{},kick:()=>{},noiseHit:()=>{},percussion:()=>{},voice:(note:number,time:number,duration:number,kind:string,volume:number,pan=0)=>{for(const value of [note,time,duration,volume,pan])expect(Number.isFinite(value),`${theme} ${kind} ${value}`).toBe(true);expect(duration).toBeGreaterThan(0);notes++;}};const manager=Object.create(MusicManager.prototype) as MusicManager;Object.assign(manager,{theme,intensity,synth,step:0});for(let step=0;step<512;step++){manager.step=step;manager.tick(step*.12);}expect(notes).toBeGreaterThan(400);}}
+});

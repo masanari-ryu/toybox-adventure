@@ -6,7 +6,9 @@ export function creatureSkin(kind:string){
  const canvas=document.createElement('canvas');canvas.width=canvas.height=512;const c=canvas.getContext('2d')!;
  c.fillStyle=kind==='KING PUNI'?'#7644b1':'#dd69a5';c.fillRect(0,0,512,512);
  for(let n=0;n<6500;n++){c.fillStyle=n%3?'#ffffff28':'#454c6924';c.fillRect(n*137%512,n*53%512,1+n%3,2);}
- if(kind==='BOTTY'){
+ if(kind==='INFANTRY'){
+  c.fillStyle='#4f9978';c.fillRect(0,0,512,512);c.fillStyle='#34715c';c.fillRect(0,335,512,55);c.fillRect(244,0,24,512);c.strokeStyle='#82c6a0';c.lineWidth=5;c.strokeRect(35,80,165,145);c.strokeRect(312,80,165,145);c.fillStyle='#ffd780';for(let n=0;n<5;n++){c.beginPath();c.arc(256,40+n*60,7,0,7);c.fill();}
+ }else if(kind==='BOTTY'){
   for(let y=0;y<512;y+=128)for(let x=0;x<512;x+=128){c.fillStyle=(x+y)%256?'#55bac2':'#2792a7';c.fillRect(x+5,y+5,118,118);c.strokeStyle='#184257';c.lineWidth=5;c.strokeRect(x+6,y+6,116,116);c.strokeStyle='#ffffff';c.lineWidth=3;c.strokeRect(x+11,y+11,106,106);
    for(const dx of [20,108])for(const dy of [20,108]){c.fillStyle='#607587';c.beginPath();c.arc(x+dx,y+dy,5,0,7);c.fill();c.fillStyle='#f3fbf9';c.fillRect(x+dx-2,y+dy-3,3,2);}c.fillStyle='#fce5a0';c.fillRect(x+32,y+51,64,17);c.fillStyle='#52707f';for(let n=0;n<4;n++)c.fillRect(x+38+n*14,y+84,7,18);}
  }else if(kind==='TOX MUNCHER'){
