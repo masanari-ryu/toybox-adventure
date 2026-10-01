@@ -1,6 +1,8 @@
 import * as T from 'three';
+const railMaps=new Map<string,T.CanvasTexture>();
 /** Painted, original texture sheets shared by the rail scenery. */
 export function railTexture(kind:'meadow'|'planet'|'metal'|'sky',night=false){
+ const key=kind+'/'+night;if(railMaps.has(key))return railMaps.get(key)!;
  const canvas=document.createElement('canvas');canvas.width=canvas.height=1024;const c=canvas.getContext('2d')!;
  let seed=71;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  const gradient=c.createLinearGradient(0,0,0,1024);gradient.addColorStop(0,kind==='sky'?(night?'#060f36':'#208cd5'):kind==='planet'?'#8065ba':kind==='meadow'?'#6ea747':'#237fb7');gradient.addColorStop(1,kind==='sky'?(night?'#7159a2':'#daf6ff'):kind==='planet'?'#e8bcca':kind==='meadow'?'#badd70':'#92dfff');c.fillStyle=gradient;c.fillRect(0,0,1024,1024);
@@ -12,5 +14,5 @@ export function railTexture(kind:'meadow'|'planet'|'metal'|'sky',night=false){
  }else if(kind==='meadow'){
   for(let n=0;n<6500;n++){const x=random()*1024,y=random()*1024;c.strokeStyle=random()>.5?'#598839':'#d2e899';c.lineWidth=1+random()*2;c.beginPath();c.moveTo(x,y);c.lineTo(x+random()*7-3,y-4-random()*9);c.stroke();}for(let n=0;n<160;n++){const x=random()*1024,y=random()*1024;c.fillStyle=n%2?'#fff3bc':'#f5b6d4';for(let a=0;a<5;a++){c.beginPath();c.arc(x+Math.cos(a*1.256)*3,y+Math.sin(a*1.256)*3,2.8,0,Math.PI*2);c.fill();}}
  }else{for(let y=0;y<1024;y+=128){c.fillStyle='#155584';c.fillRect(0,y,1024,5);for(let x=32;x<1024;x+=128){c.fillStyle='#d7f5ff';c.beginPath();c.arc(x,y+18,5,0,Math.PI*2);c.fill();}}}
- const texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;texture.wrapS=texture.wrapT=T.RepeatWrapping;return texture;
+ const texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;texture.wrapS=texture.wrapT=T.RepeatWrapping;railMaps.set(key,texture);return texture;
 }
