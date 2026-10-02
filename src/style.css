@@ -60,3 +60,5 @@
 @media(min-height:621px) and (max-height:800px){#overlay:has(#challenge:not([hidden])){padding-top:20px;padding-bottom:20px}#overlay:has(#challenge:not([hidden])) .chips,#overlay:has(#challenge:not([hidden])) footer{display:none}#overlay:has(#challenge:not([hidden])) .eyebrow{font-size:12px}#overlay:has(#challenge:not([hidden])) h1.game-logo{margin:8px 0;width:min(440px,80vw)}#overlay:has(#challenge:not([hidden])) h1.game-logo img{max-height:28dvh;object-fit:contain;object-position:left center}#overlay:has(#challenge:not([hidden])) #description{margin:5px 0;font-size:14px;line-height:1.5}#overlay:has(#challenge:not([hidden])) .instructions{font-size:11px;line-height:1.45}}
 
 #title-return{position:static;min-height:44px;padding:12px 24px;margin:8px;border-radius:18px;background:#294c63;border:2px solid #a5e1d9;font-size:18px;color:#fff}
+
+.home-tip{font-size:12px!important;color:#c6ffe8!important;margin:0 0 8px!important;line-height:1.4}#overlay:has(#pause-controls:not([hidden])) .home-tip{display:none}
