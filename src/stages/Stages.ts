@@ -1,3 +1,4 @@
+import {castleRoute} from '../world/CastleFloors';
 import type {EnemyKind} from '../game/Enemy';
 import type {Door,SwitchKind} from '../world/Threats';
 export type Stage = {name:string;story:string;w:number;h:number;walls:[number,number,number,number][];gaps:[number,number][];start:[number,number];key:[number,number];exit:[number,number];doors:Door[];switches:{x:number;z:number;door:number;kind:SwitchKind}[];pools:{x:number;z:number;rx:number;rz:number}[];lava:{x:number;z:number;rx:number;rz:number}[];items:[string,number,number,number][];enemies:[EnemyKind,number,number,number?][];bridge:[number,number];bossGate?:[number,number];boss:{x:number;z:number;exitDoor:number;hp:number;scale:number};route:[number,number][];};
@@ -24,3 +25,10 @@ export let activeStage=0;
 export function setActiveStage(n:number){activeStage=Math.max(0,Math.min(2,n));}
 export function makeLayout(s:Stage){const a=Array.from({length:s.h},(_,r)=>Array.from({length:s.w},(_,c)=>r===0||c===0||r===s.h-1||c===s.w-1?'#':'.'));
  for(const [x,z,x2,z2]of s.walls)for(let r=z;r<=z2;r++)for(let c=x;c<=x2;c++)a[r][c]='#';for(const [c,r]of s.gaps)a[r][c]='.';return a.map(r=>r.join(''));}
+
+// Keep the ground-floor dungeon while routing the final adventure through elevated galleries.
+stages[2].route=castleRoute;
+stages[2].switches=stages[2].switches.filter(s=>s.kind!=='core');
+stages[2].switches.push({x:78,z:32,kind:'core',door:-1});
+// Rewards lead into short side paths, then converge at the staircase to the throne room.
+for(const item of stages[2].items){if(item[0]==='BIG POTION'&&item[1]===50){item[1]=42;item[2]=50;}if(item[0]==='AMMO CELL'){item[1]=52;item[2]=22;}if(item[0]==='RAINBOW'){item[1]=86;item[2]=32;}}
