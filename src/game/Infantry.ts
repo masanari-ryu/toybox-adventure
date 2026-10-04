@@ -21,3 +21,6 @@ export function buildInfantry(body:T.Group){
  const base=mesh(new RoundedBoxGeometry(1.12,.075,.7,2,.06),0x39775f,0,.02,0);body.add(base);
  return{legs,arms};
 }
+
+/** Bright toy katana, attached to an articulated hand rather than the merged body. */
+export function infantryKatana(hand:T.Object3D){const sword=new T.Group();const blade=new T.Shape();blade.moveTo(-.07,0);blade.lineTo(.08,0);blade.quadraticCurveTo(.3,1.55,.16,2.05);blade.quadraticCurveTo(-.03,1.6,-.07,0);const m=new T.Mesh(new T.ExtrudeGeometry(blade,{depth:.055,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.025}),new T.MeshStandardMaterial({color:0xc8fff5,metalness:.75,roughness:.22}));sword.add(m);const grip=new T.Mesh(new T.CylinderGeometry(.075,.075,.5,10),new T.MeshStandardMaterial({color:0xe99342,roughness:.55}));grip.position.y=-.25;sword.add(grip);const guard=new T.Mesh(new T.TorusGeometry(.18,.045,8,20),new T.MeshStandardMaterial({color:0xffd470,metalness:.5,roughness:.35}));guard.rotation.x=Math.PI/2;sword.add(guard);for(let n=0;n<4;n++){const ring=new T.Mesh(new T.TorusGeometry(.077,.012,6,12),grip.material);ring.rotation.x=Math.PI/2;ring.position.y=-.07-n*.1;sword.add(ring);}sword.position.set(0,-.4,-.2);sword.rotation.z=-.5;hand.add(sword);return sword;}

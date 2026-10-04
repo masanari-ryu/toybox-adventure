@@ -35,6 +35,7 @@ export function challengeSpawns(stage:Stage,level:number):Stage['enemies']{
 }
 /** Scale supplies only; keys, batteries and weapon rewards stay unique. */
 export function challengeItems(stage:Stage,level:number):Stage['items']{
+ if(level>=2)return stage.items.filter(([kind])=>!consumableKinds.has(kind)).map(i=>[...i] as Stage['items'][number]);
  const multiplier=[1,1.5,2,2][level],supplies=new Set(['POTION','BIG POTION','ANTIDOTE','LAVA CHARM','ARMOR CELL','AMMO CELL','CANDY','RAINBOW']);
  const base=stage.items.filter(([kind])=>supplies.has(kind)),result=stage.items.map(i=>[...i] as Stage['items'][number]),layout=makeLayout(stage);
  const safe=(x:number,z:number)=>layout[Math.floor(z/4)]?.[Math.floor(x/4)]==='.';
@@ -50,4 +51,13 @@ export function challengeItems(stage:Stage,level:number):Stage['items']{
   if(!placed)throw new Error(`No safe supply position: ${stage.name} ${kind}`);
  }
  return result;
+}
+
+export const consumableKinds=new Set(['POTION','BIG POTION','ANTIDOTE','LAVA CHARM','ARMOR CELL','AMMO CELL','CANDY','RAINBOW']);
+/** A deterministic budget guarantees twice the easy supplies after all regular enemies are defeated. */
+export function enemySupplyDrops(stage:Stage,level:number,defeated:number,total:number):Stage['items']{
+ if(level<2||total<1||defeated<1||defeated>total)return [];
+ const supplies=stage.items.filter(([kind])=>consumableKinds.has(kind)),budget=supplies.length*2;
+ const start=Math.floor(budget*(defeated-1)/total),end=Math.floor(budget*defeated/total);
+ return Array.from({length:Math.max(0,end-start)},(_,i)=>[...supplies[(start+i)%supplies.length]] as Stage['items'][number]);
 }

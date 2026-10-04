@@ -19,10 +19,20 @@ it('keeps reinforcements separated and the tutorial entrance safe',()=>{
  }
 });
 
-import {challengeItems} from '../src/game/Challenge';
-it('scales supplies, preserves rewards, and caps nightmare at hard supply levels',()=>{
- const kinds=new Set(['POTION','BIG POTION','ANTIDOTE','LAVA CHARM','ARMOR CELL','AMMO CELL','CANDY','RAINBOW']);
- for(const stage of stages){expect(challengeItems(stage,0)).toEqual(stage.items);const count=stage.items.filter(([k])=>kinds.has(k)).length;
- for(let level=1;level<4;level++){const items=challengeItems(stage,level);expect(items.filter(([k])=>kinds.has(k))).toHaveLength(Math.ceil(count*[1,1.5,2,2][level]));expect(items.filter(([k])=>!kinds.has(k))).toEqual(stage.items.filter(([k])=>!kinds.has(k)));for(const [,x,z]of items.slice(stage.items.length)){expect(makeLayout(stage)[Math.floor(z/4)][Math.floor(x/4)]).toBe('.');expect([...stage.pools,...stage.lava].some(p=>Math.abs(x-p.x)<p.rx+.8&&Math.abs(z-p.z)<p.rz+.8)).toBe(false);}}
- expect(challengeItems(stage,3)).toEqual(challengeItems(stage,2));}
+import {challengeItems,enemySupplyDrops,consumableKinds} from '../src/game/Challenge';
+it('moves only hard consumables to guaranteed enemy drops with twice the easy budget',()=>{
+ for(const stage of stages){
+  const easy=stage.items.filter(([k])=>consumableKinds.has(k));
+  expect(challengeItems(stage,0)).toEqual(stage.items);
+  expect(challengeItems(stage,1).filter(([k])=>consumableKinds.has(k))).toHaveLength(Math.ceil(easy.length*1.5));
+  for(const level of [2,3]){
+   expect(challengeItems(stage,level)).toEqual(stage.items.filter(([k])=>!consumableKinds.has(k)));
+   const total=challengeSpawns(stage,level).filter(([k])=>!['KING PUNI','SAMURAI'].includes(k)).length;
+   const drops=Array.from({length:total},(_,i)=>enemySupplyDrops(stage,level,i+1,total)).flat();
+   expect(drops).toHaveLength(easy.length*2);
+   for(const [kind]of drops)expect(consumableKinds.has(kind)).toBe(true);
+   for(const [kind]of easy)expect(drops.filter(([k])=>k===kind)).toHaveLength(easy.filter(([k])=>k===kind).length*2);
+  }
+  expect(enemySupplyDrops(stage,0,1,10)).toEqual([]);
+ }
 });

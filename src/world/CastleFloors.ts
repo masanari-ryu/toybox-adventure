@@ -1,13 +1,13 @@
 /** Original star castle: continuous ramps, narrow galleries, and a third-floor throne room. */
 export type Deck={x:number;z:number;w:number;d:number;y:number;endY?:number;axis?:'x'|'z';name:string};
 export const castleDecks:Deck[]=[
- {x:30,z:48,w:6,d:16,y:6,endY:0,axis:'z',name:'ほしの かいだん'},
+ {x:30,z:48,w:10,d:16,y:6,endY:0,axis:'z',name:'ほしの かいだん'},
  {x:30,z:38,w:16,d:6,y:6,name:'2かいの テラス'},
  {x:48,z:38,w:28,d:4.4,y:6,name:'ほそい ほしの みち'},
  {x:62,z:36,w:5,d:32,y:6,name:'そらの わたりろうか'},
  {x:52,z:50,w:24,d:4.4,y:6,name:'ほきゅうの よりみち'},
  {x:52,z:22,w:24,d:4.4,y:6,name:'ひみつの テラス'},
- {x:72,z:32,w:20,d:6,y:6,endY:12,axis:'x',name:'3かいへの かいだん'},
+ {x:72,z:32,w:20,d:8,y:6,endY:12,axis:'x',name:'3かいへの かいだん'},
  {x:90,z:22,w:20,d:28,y:12,name:'3かいの おおひろま'},
  {x:106,z:18,w:12,d:20,y:12,name:'ほしの へや'},
 ];
@@ -22,7 +22,7 @@ export function floorNumber(feet:number){return feet>=10?3:feet>=4?2:1;}
 export function castleWall(x:number,z:number,feet:number,gate:boolean,rewardOpen:boolean){
  if(feet<10)return false;
  if(x>=79.6&&x<=112.5&&z>=7.5&&z<=36.5){
-  if(z<8.35||(x<80.35&&!(z>29&&z<35))||x>111.65||z>35.65)return true;
+  if(z<8.35||(x<80.35&&!(z>28.35&&z<35.65))||x>111.65||z>35.65)return true;
   if(x>99.7&&z>27.65)return true;
   if(Math.abs(x-98)<.45&&!(rewardOpen&&z>16&&z<20))return true;
   if(!gate&&x>=80&&x<=98&&Math.abs(z-30)<.4)return true;
