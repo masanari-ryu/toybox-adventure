@@ -1,3 +1,3 @@
-import {it,expect} from 'vitest';import {Fog} from '../src/map/Fog';import {configureStage,canMove,wall} from '../src/world/layout';
+import {it,expect} from 'vitest';import {Fog} from '../src/map/Fog';import {configureStage,canMove,wall,canMoveAt} from '../src/world/layout';
 it('retains discovery while withholding rooms behind a closed gate',()=>{configureStage(0);const f=new Fog();f.reveal(34,38);expect(f.known(42,38)).toBe(false);expect(f.known(34,38)).toBe(true);f.reveal(10,42);expect(f.known(34,38)).toBe(true);f.reset();expect(f.visited.size).toBe(0);});
-it('blocks outside walls and the final boss gate',()=>{configureStage(2);expect(canMove(2,2)).toBe(false);expect(canMove(10,58)).toBe(true);expect(wall(74,18,false)).toBe(true);expect(wall(74,18,true)).toBe(false);configureStage(0);});
+it('blocks outside walls and the final boss gate',()=>{configureStage(2);expect(canMove(2,2)).toBe(false);expect(canMove(10,58)).toBe(true);expect(wall(74,18,false)).toBe(false);expect(canMoveAt(90,30,13.65,false)).toBe(false);expect(canMoveAt(90,30,13.65,true)).toBe(true);expect(wall(74,18,true)).toBe(false);configureStage(0);});
