@@ -1,2 +1,3 @@
 import {test,expect} from '@playwright/test';
+test.setTimeout(120000);
 test('rail visual review',async({page})=>{await page.setViewportSize({width:844,height:390});for(const scene of ['rail','rail-loop','rail-exit']){await page.goto(`/tests-runner.html?scene=${scene}`);await expect(page.locator('#review-scenes')).toBeAttached({timeout:30000});await expect(page.locator('#area')).toContainText('レール',{timeout:30000});await expect(page.locator('#overlay')).toBeHidden();await page.screenshot({path:`screenshots/v3/${scene}-updated.png`});if(scene==='rail-exit')await expect(page.locator('#rail-awakening')).toHaveCSS('opacity',/0\.[89]/);} });

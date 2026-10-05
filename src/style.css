@@ -62,3 +62,7 @@
 #title-return{position:static;min-height:44px;padding:12px 24px;margin:8px;border-radius:18px;background:#294c63;border:2px solid #a5e1d9;font-size:18px;color:#fff}
 
 .home-tip{font-size:12px!important;color:#c6ffe8!important;margin:0 0 8px!important;line-height:1.4}#overlay:has(#pause-controls:not([hidden])) .home-tip{display:none}
+
+#ending-caption{white-space:pre-line}
+
+.nightmare-illustration{display:none}.nightmare-art .ending-panel,.nightmare-art .memory-stars{display:none}.nightmare-art .nightmare-illustration{display:block;position:absolute;inset:0;background-size:contain;background-position:center;background-repeat:no-repeat;animation:nightmare-memory 8s ease-out both}.nightmare-art[data-panel="wake"] .nightmare-illustration{background-image:url('/assets/nightmare-wake.webp')}.nightmare-art[data-panel="thanks"] .nightmare-illustration{background-image:url('/assets/nightmare-thanks.webp')}.nightmare-art[data-panel="school"] .nightmare-illustration{display:none}.nightmare-art[data-panel="school"] .school-panel{display:block;opacity:1}.nightmare-art[data-panel="friends"] .nightmare-illustration{background-image:url('/assets/nightmare-friends.webp')}@keyframes nightmare-memory{from{transform:scale(1)}to{transform:scale(1.035)}}@media(prefers-reduced-motion:reduce){.nightmare-art .nightmare-illustration{animation:none}}

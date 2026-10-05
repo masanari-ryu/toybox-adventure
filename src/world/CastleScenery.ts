@@ -13,7 +13,8 @@ export function buildCastleFloors(group:T.Group){const map=toySheet('tile'),mat=
  for(const [text,x,y,z]of [['2かいへ',30,2.5,57],['ほそい みち · ゆっくり',40,8.2,38],['3かいへ',65,8.5,32],['ボスの へや',90,16,30]]as const){const s=sign(text);s.position.set(x,y,z);group.add(s);}
  // Third-floor walls are taller than the gallery and leave a single boss/reward entrance.
  const wallMat=new T.MeshStandardMaterial({map:toySheet('armor'),color:0xc7bde8,roughness:.45,metalness:.25});const parts:[number,number,number,number][]=[[80,18.5,.5,21],[112,18,.5,20],[96,8,32,.5],[90,36,20,.5],[106,28,12,.5],[98,12,.5,8],[98,24,.5,8]];
- for(const [x,z,w,d]of parts){const m=new T.Mesh(new RoundedBoxGeometry(w,5,d,2,.1),wallMat);m.position.set(x,14.5,z);m.castShadow=true;m.receiveShadow=true;group.add(m);const strip=new T.Mesh(new T.BoxGeometry(w,.12,d),glow(0x86dedf));strip.position.set(x,16.8,z);group.add(strip);}
+ for(const [x,z,w,d]of parts){const m=new T.Mesh(new RoundedBoxGeometry(w,16,d,2,.1),wallMat);m.position.set(x,20,z);m.castShadow=true;m.receiveShadow=true;group.add(m);const strip=new T.Mesh(new T.BoxGeometry(w,.12,d),glow(0x86dedf));strip.position.set(x,16.8,z);group.add(strip);}
  for(const [x,z]of [[82,10],[96,10],[82,34],[96,34]]){const p=new T.Mesh(new T.CylinderGeometry(.45,.6,7,16),accent);p.position.set(x,15.5,z);group.add(p);const star=new T.Mesh(new T.OctahedronGeometry(.65),glow(0xffd886));star.position.set(x,19.3,z);group.add(star);}
+ const ceiling=new T.Mesh(new T.BoxGeometry(18,.4,22),wallMat);ceiling.position.set(89,28,19);group.add(ceiling);
  const moon=new T.Mesh(new T.SphereGeometry(1.4,24,16),glow(0xaee6ff));moon.position.set(90,19,9);group.add(moon);
 }

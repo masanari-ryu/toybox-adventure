@@ -1,0 +1,10 @@
+import {it,expect} from 'vitest';
+import {infantrySpeed,puniShoots,inBossArena} from '../src/game/CombatRules';
+import {configureStage,canMoveAt,sightAt} from '../src/world/layout';
+import {setBossEntranceClosed,resetDoors} from '../src/world/Threats';
+import {railCurve,railSupportAllowed,railFrame} from '../src/rail/RailCourse';
+import {railBeat,railBounce} from '../src/rail/RailRhythm';
+it('adds one-shot ranged attacks only to hard and nightmare puni and scales infantry movement',()=>{expect([0,1,2,3].map(puniShoots)).toEqual([false,false,true,true]);expect([0,1,2,3].map(infantrySpeed)).toEqual([1,1,1.2,1.5]);});
+it('admits the player before activation, seals all arena escape gaps, and resets on restart',()=>{configureStage(2);resetDoors();expect(canMoveAt(90,30,13.65,false)).toBe(true);expect(inBossArena(90,24,12)).toBe(true);expect(inBossArena(90,32,12)).toBe(false);expect(inBossArena(90,24,0)).toBe(false);setBossEntranceClosed(true);expect(canMoveAt(90,30,13.65,true)).toBe(false);expect(canMoveAt(80,29,13.65,true)).toBe(false);expect(sightAt(90,32,13.65,90,24,13.65,true)).toBe(false);expect(canMoveAt(90,24,13.65,true)).toBe(true);expect(canMoveAt(74,18,1.65,true)).toBe(true);resetDoors();expect(canMoveAt(90,30,13.65,true)).toBe(true);configureStage(0);});
+it('never places support columns on the inverted portion of either loop',()=>{for(const stage of [1,2]){const curve=railCurve(stage);let checked=0;for(let n=0;n<=1440;n++){const f=n/1440;if(railFrame(curve,f).up.y<0){expect(railSupportAllowed(curve,f)).toBe(false);checked++;}}expect(checked).toBeGreaterThan(10);}expect(railSupportAllowed(railCurve(0),.5)).toBe(true);});
+it('keeps train motion small and rhythm tied to elapsed ride time',()=>{for(let n=0;n<1000;n++)expect(Math.abs(railBounce(n/100))).toBeLessThan(.04);expect(railBeat(.129)).toBe(0);expect(railBeat(.13)).toBe(1);expect(railBounce(0)).toBe(0);});

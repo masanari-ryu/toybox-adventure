@@ -1,3 +1,4 @@
+import {bossEntranceClosed} from './Threats';
 /** Original star castle: continuous ramps, narrow galleries, and a third-floor throne room. */
 export type Deck={x:number;z:number;w:number;d:number;y:number;endY?:number;axis?:'x'|'z';name:string};
 export const castleDecks:Deck[]=[
@@ -22,10 +23,10 @@ export function floorNumber(feet:number){return feet>=10?3:feet>=4?2:1;}
 export function castleWall(x:number,z:number,feet:number,gate:boolean,rewardOpen:boolean){
  if(feet<10)return false;
  if(x>=79.6&&x<=112.5&&z>=7.5&&z<=36.5){
-  if(z<8.35||(x<80.35&&!(z>28.35&&z<35.65))||x>111.65||z>35.65)return true;
+  if(z<8.35||(x<80.35&&!(z>(bossEntranceClosed?30.4:28.35)&&z<35.65))||x>111.65||z>35.65)return true;
   if(x>99.7&&z>27.65)return true;
   if(Math.abs(x-98)<.45&&!(rewardOpen&&z>16&&z<20))return true;
-  if(!gate&&x>=80&&x<=98&&Math.abs(z-30)<.4)return true;
+  if(bossEntranceClosed&&x>=80&&x<=98&&Math.abs(z-30)<.4)return true;
  }
  return false;
 }

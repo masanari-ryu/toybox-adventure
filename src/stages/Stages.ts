@@ -29,6 +29,6 @@ export function makeLayout(s:Stage){const a=Array.from({length:s.h},(_,r)=>Array
 // Keep the ground-floor dungeon while routing the final adventure through elevated galleries.
 stages[2].route=castleRoute;
 stages[2].switches=stages[2].switches.filter(s=>s.kind!=='core');
-stages[2].switches.push({x:78,z:32,kind:'core',door:-1});
+stages[2].switches.push({x:90,z:24,kind:'core',door:-1});
 // Rewards lead into short side paths, then converge at the staircase to the throne room.
 for(const item of stages[2].items){if(item[0]==='BIG POTION'&&item[1]===50){item[1]=42;item[2]=50;}if(item[0]==='AMMO CELL'){item[1]=52;item[2]=22;}if(item[0]==='RAINBOW'){item[1]=86;item[2]=32;}}
