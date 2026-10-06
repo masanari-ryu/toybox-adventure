@@ -1,5 +1,6 @@
 import * as T from 'three';
 import {finishTexture} from '../world/ObjectTextures';
+import {setCreatureSurface, type CreatureSurface} from './CreatureSurface';
 const cache=new Map<string,T.CanvasTexture>();
 export function creatureSkin(kind:string){
  const existing=cache.get(kind);if(existing)return existing;
@@ -8,6 +9,10 @@ export function creatureSkin(kind:string){
  for(let n=0;n<6500;n++){c.fillStyle=n%3?'#ffffff28':'#454c6924';c.fillRect(n*137%512,n*53%512,1+n%3,2);}
  if(kind==='INFANTRY'){
   c.fillStyle='#4f9978';c.fillRect(0,0,512,512);c.fillStyle='#34715c';c.fillRect(0,335,512,55);c.fillRect(244,0,24,512);c.strokeStyle='#82c6a0';c.lineWidth=5;c.strokeRect(35,80,165,145);c.strokeRect(312,80,165,145);c.fillStyle='#ffd780';for(let n=0;n<5;n++){c.beginPath();c.arc(256,40+n*60,7,0,7);c.fill();}
+ }else if(kind==='SAMURAI'){
+  c.fillStyle='#20677d';c.fillRect(0,0,512,512);
+  for(let y=0;y<512;y+=64){const shine=c.createLinearGradient(0,y,0,y+64);shine.addColorStop(0,'#59bac3');shine.addColorStop(.2,'#287b93');shine.addColorStop(1,'#174056');c.fillStyle=shine;c.fillRect(0,y,512,61);c.strokeStyle='#122e43';c.lineWidth=5;c.beginPath();c.moveTo(0,y+62);c.lineTo(512,y+62);c.stroke();for(let x=28;x<512;x+=64){c.fillStyle='#f6d18b';c.beginPath();c.arc(x,y+17,5,0,7);c.fill();c.strokeStyle='#e5ab64';c.lineWidth=3;c.beginPath();c.moveTo(x,y+28);c.lineTo(x,y+49);c.stroke();}}
+  c.strokeStyle='#ffe5a0';c.lineWidth=3;for(let x=0;x<512;x+=128){c.beginPath();c.moveTo(x+64,190);c.lineTo(x+92,225);c.lineTo(x+64,260);c.lineTo(x+36,225);c.closePath();c.stroke();}
  }else if(kind==='BOTTY'){
   for(let y=0;y<512;y+=128)for(let x=0;x<512;x+=128){c.fillStyle=(x+y)%256?'#55bac2':'#2792a7';c.fillRect(x+5,y+5,118,118);c.strokeStyle='#184257';c.lineWidth=5;c.strokeRect(x+6,y+6,116,116);c.strokeStyle='#ffffff';c.lineWidth=3;c.strokeRect(x+11,y+11,106,106);
    for(const dx of [20,108])for(const dy of [20,108]){c.fillStyle='#607587';c.beginPath();c.arc(x+dx,y+dy,5,0,7);c.fill();c.fillStyle='#f3fbf9';c.fillRect(x+dx-2,y+dy-3,3,2);}c.fillStyle='#fce5a0';c.fillRect(x+32,y+51,64,17);c.fillStyle='#52707f';for(let n=0;n<4;n++)c.fillRect(x+38+n*14,y+84,7,18);}
@@ -29,8 +34,9 @@ export function creatureSkin(kind:string){
 export function applyCreatureTextures(body:T.Group){
  body.traverse(o=>{if(!(o instanceof T.Mesh)||!(o.material instanceof T.MeshStandardMaterial))return;const m=o.material;
   if(m.emissive.getHex()!==0&&m.emissiveIntensity>=1)return;
-  if(m.map){m.color.setHex(0xffffff);m.bumpMap=m.map;m.bumpScale=.035;m.roughness=m.map===cache.get('BOTTY')?.32:m.map===cache.get('TOX MUNCHER')?.58:m.map===cache.get('BALLOONER')?.42:.3;return;}
-  const hsl=m.color.getHSL({h:0,s:0,l:0});if(hsl.l<.15)return;
-  const finish=hsl.s<.2&&hsl.l>.7?'ivory':hsl.h>.07&&hsl.h<.19?'metal':'rubber';m.map=finishTexture(finish);m.bumpMap=m.map;m.bumpScale=.015;m.roughness=finish==='metal'?.34:.5;
+  if(m.userData.creatureSurface){setCreatureSurface(m,m.userData.creatureSurface as CreatureSurface);return;}
+  if(m.map){m.color.setHex(0xffffff);const skin=[...cache].find(([,t])=>m.map===t)?.[0];const kind:CreatureSurface=skin==='BALLOONER'?'cloth':skin==='TOX MUNCHER'?'rubber':skin==='PUNI'||skin==='KING PUNI'?'gel':skin==='BOTTY'||skin==='SAMURAI'?'enamel':'metal';setCreatureSurface(m,kind);return;}
+  const hsl=m.color.getHSL({h:0,s:0,l:0});if(hsl.l<.15){setCreatureSurface(m,'rubber');return;}
+  const finish=hsl.s<.2&&hsl.l>.7?'ivory':hsl.h>.07&&hsl.h<.19?'metal':'rubber';m.map=finishTexture(finish);setCreatureSurface(m,finish==='metal'?'metal':finish==='ivory'?'enamel':'rubber');
  });
 }
