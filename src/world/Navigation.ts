@@ -1,7 +1,14 @@
 import {supportHeight} from './CastleFloors';
 import {activeStage} from '../stages/Stages';
+import {bossEntranceClosed,doors} from './Threats';
 import {canMoveAt} from './layout';
-import {layout,wall,cell,canMove} from './layout';
+import {layout,cell,canMove,navigationRevision} from './layout';
+type CastlePoint={x:number;z:number;y:number;id:string};
+const castleEdges=new Map<string,CastlePoint[]>();let edgeVersion='';
+function prepareEdges(gate:boolean){const version=`${navigationRevision}/${gate}/${bossEntranceClosed}/${doors.map(d=>d.open?1:0).join('')}`;if(version!==edgeVersion){edgeVersion=version;castleEdges.clear();}}
+const directions=[[2,0],[-2,0],[0,2],[0,-2]] as const;
+/** Cache collision-tested graph edges, preserving BFS order and every floor rule. */
+function adjacent(p:{x:number;z:number;y:number},gate:boolean){const key=`${p.x}/${p.z}/${p.y}`;const cached=castleEdges.get(key);if(cached)return cached;const edges:CastlePoint[]=[];for(const [dx,dz]of directions){const x=p.x+dx,z=p.z+dz,y=supportHeight(x,z,p.y,1.05);if(p.y-y>1.3||!canTraverseCastle(p.x,p.z,p.y,x,z,gate))continue;edges.push({x,z,y,id:`${x},${z},${Math.round(y*2)}`});}if(castleEdges.size<16000)castleEdges.set(key,edges);return edges;}
 export function route(x:number,z:number,tx:number,tz:number,gate:boolean,feet?:number,targetFeet?:number):{x:number,z:number}|null {
  if(activeStage===2&&feet!==undefined)return elevatedRoute(x,z,feet,tx,tz,gate,targetFeet);
  const start=[Math.floor(x/cell),Math.floor(z/cell)],end=[Math.floor(tx/cell),Math.floor(tz/cell)];if(start[0]===end[0]&&start[1]===end[1])return{x:tx,z:tz};
@@ -9,10 +16,11 @@ export function route(x:number,z:number,tx:number,tz:number,gate:boolean,feet?:n
 }
 
 export function elevatedRoute(x:number,z:number,feet:number,tx:number,tz:number,gate:boolean,targetFeet=feet):{x:number,z:number}|null {
+ prepareEdges(gate);
  const key=(x:number,z:number,y:number)=>`${x},${z},${Math.round(y*2)}`;
  const sx=Math.round(x/2)*2,sz=Math.round(z/2)*2,start={x:sx,z:sz,y:feet},first=key(sx,sz,feet),parents=new Map<string,string>([[first,'']]),points=new Map([[first,start]]),queue=[first];let found='';
  for(let n=0;n<queue.length&&n<7000;n++){const id=queue[n],p=points.get(id)!;if(Math.hypot(tx-p.x,tz-p.z)<2.1&&Math.abs(targetFeet-p.y)<.65){found=id;break;}
- for(const [dx,dz]of [[2,0],[-2,0],[0,2],[0,-2]]){const nx=p.x+dx,nz=p.z+dz,ny=supportHeight(nx,nz,p.y,1.05),nid=key(nx,nz,ny);if(parents.has(nid)||p.y-ny>1.3||!canTraverseCastle(p.x,p.z,p.y,nx,nz,gate))continue;parents.set(nid,id);points.set(nid,{x:nx,z:nz,y:ny});queue.push(nid);}}
+ for(const next of adjacent(p,gate)){if(parents.has(next.id))continue;parents.set(next.id,id);points.set(next.id,next);queue.push(next.id);}}
  if(!found)return null;if(found===first)return canTraverseCastle(x,z,feet,tx,tz,gate)?{x:tx,z:tz}:null;while(parents.get(found)!==first&&parents.get(found))found=parents.get(found)!;const next=points.get(found)!;return{x:next.x,z:next.z};
 }
 

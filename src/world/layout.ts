@@ -1,11 +1,12 @@
-import {castleWall,surfaces} from './CastleFloors';
+import {castleWall,intersectsDeck} from './CastleFloors';
 import {doors,obstacles,pools,lavaPools,switches,setBossEntranceClosed} from './Threats';
 import type {Stage} from '../stages/Stages';
 import {stages,setActiveStage,activeStage,makeLayout} from '../stages/Stages';
 export const cell=4;
 export const layout:string[]=[];
 export const keys:{x:number,z:number}[]=[];
-export function configureStage(n:number,override?:Stage){setActiveStage(n);setBossEntranceClosed(false);const s=override??stages[n];layout.splice(0,layout.length,...makeLayout(s));keys.splice(0,keys.length,{x:s.key[0],z:s.key[1]});doors.splice(0,doors.length,...s.doors.map(d=>({...d,open:false})));switches.splice(0,switches.length,...s.switches);pools.splice(0,pools.length,...s.pools);lavaPools.splice(0,lavaPools.length,...s.lava);obstacles.splice(0,obstacles.length,...(n===1?[{x:50,z:54,r:1.8},{x:58,z:18,r:1.8},{x:86,z:42,r:1.8},{x:54,z:14,r:1.25},{x:64,z:46,r:1.35}]:n===2?[{x:96,z:20,r:1.35}]:[]));}
+export let navigationRevision=0;
+export function configureStage(n:number,override?:Stage){navigationRevision++;setActiveStage(n);setBossEntranceClosed(false);const s=override??stages[n];layout.splice(0,layout.length,...makeLayout(s));keys.splice(0,keys.length,{x:s.key[0],z:s.key[1]});doors.splice(0,doors.length,...s.doors.map(d=>({...d,open:false})));switches.splice(0,switches.length,...s.switches);pools.splice(0,pools.length,...s.pools);lavaPools.splice(0,lavaPools.length,...s.lava);obstacles.splice(0,obstacles.length,...(n===1?[{x:50,z:54,r:1.8},{x:58,z:18,r:1.8},{x:86,z:42,r:1.8},{x:54,z:14,r:1.25},{x:64,z:46,r:1.35}]:n===2?[{x:96,z:20,r:1.35}]:[]));}
 configureStage(0);
 /** Ground layout blockers: castle boss/reward doors live on floor three, never at their old ground cells. */
 export function wall(x:number,z:number,gate=false):boolean {const c=Math.floor(x/cell),r=Math.floor(z/cell),b=stages[activeStage].bossGate;return !layout[r]?.[c]||layout[r][c]==='#'||(!gate&&activeStage!==2&&!!b&&c===b[0]&&r===b[1])||obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.r)||doors.some(d=>!(activeStage===2&&d.id===stages[2].boss.exitDoor)&&!d.open&&d.cells.some(([a,b])=>a===c&&b===r));}
@@ -14,7 +15,7 @@ export function lineOfSight(x:number,z:number,tx:number,tz:number,gate:boolean){
 
 /** Height-aware collision used by actors and projectiles in the third stage. */
 export function wallAt(x:number,z:number,y:number,gate=false){if(activeStage!==2)return wall(x,z,gate);
- if(surfaces(x,z).some(h=>h>0&&y>=h-.38&&y<=h+.03))return true;
+ if(intersectsDeck(x,z,y))return true;
  if(y>=27.8&&y<=28.4&&x>=80&&x<=98&&z>=8&&z<=30)return true;
  if(y>=12&&y<=28&&castleWall(x,z,12,gate,!!doors[3]?.open))return true;
  const c=Math.floor(x/4),r=Math.floor(z/4);if(!layout[r]?.[c]||c<=0||r<=0||c>=layout[0].length-1||r>=layout.length-1)return true;

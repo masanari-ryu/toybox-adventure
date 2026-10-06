@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://toybox-adventure.pages.dev/sitemap.xml
+Sitemap: https://masanari-ryu.github.io/toybox-adventure/sitemap.xml

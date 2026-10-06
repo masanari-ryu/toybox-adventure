@@ -16,9 +16,10 @@ export const castleRoute:[number,number][]=[[26,58],[30,56],[30,48],[30,40],[40,
 export function contains(d:Deck,x:number,z:number,inset=0){return Math.abs(x-d.x)<=d.w/2-inset&&Math.abs(z-d.z)<=d.d/2-inset;}
 export function deckHeight(d:Deck,x:number,z:number){if(d.endY===undefined)return d.y;const t=d.axis==='x'?(x-d.x+d.w/2)/d.w:(z-d.z+d.d/2)/d.d;return d.y+(d.endY-d.y)*Math.max(0,Math.min(1,t));}
 export function surfaces(x:number,z:number){return castleDecks.filter(d=>contains(d,x,z)).map(d=>deckHeight(d,x,z));}
-export function topHeight(x:number,z:number){return Math.max(0,...surfaces(x,z));}
+export function topHeight(x:number,z:number){let height=0;for(const d of castleDecks)if(contains(d,x,z))height=Math.max(height,deckHeight(d,x,z));return height;}
 /** Feet can step onto a ramp, but cannot teleport to a gallery directly overhead. */
-export function supportHeight(x:number,z:number,feet:number,step=.55){return Math.max(0,...surfaces(x,z).filter(y=>y<=feet+step));}
+export function supportHeight(x:number,z:number,feet:number,step=.55){let height=0;for(const d of castleDecks)if(contains(d,x,z)){const y=deckHeight(d,x,z);if(y<=feet+step&&y>height)height=y;}return height;}
+export function intersectsDeck(x:number,z:number,y:number){for(const d of castleDecks)if(contains(d,x,z)){const h=deckHeight(d,x,z);if(h>0&&y>=h-.38&&y<=h+.03)return true;}return false;}
 export function floorNumber(feet:number){return feet>=10?3:feet>=4?2:1;}
 export function castleWall(x:number,z:number,feet:number,gate:boolean,rewardOpen:boolean){
  if(feet<10)return false;

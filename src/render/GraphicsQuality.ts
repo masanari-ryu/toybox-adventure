@@ -1,11 +1,11 @@
 export type GraphicsTier='high'|'medium'|'low';
 export const graphicsBudget={
- high:{pixelRatio:1.5,shadow:1536,shadowRange:24,lights:6,detailRange:32,post:true},
- medium:{pixelRatio:1.2,shadow:768,shadowRange:18,lights:3,detailRange:22,post:false},
+ high:{pixelRatio:1.25,shadow:1024,shadowRange:24,lights:3,detailRange:32,post:false},
+ medium:{pixelRatio:1.1,shadow:512,shadowRange:18,lights:3,detailRange:22,post:false},
  low:{pixelRatio:1,shadow:0,shadowRange:14,lights:2,detailRange:14,post:false}
 } as const;
 export function initialTier(touch:boolean,width:number,height:number,cores=4):GraphicsTier{
- return touch?(Math.min(width,height)>=600&&cores>=4?'medium':'low'):cores>=4?'high':'medium';
+ return touch?(Math.min(width,height)>=600&&cores>=4?'medium':'low'):cores>=12?'high':'medium';
 }
 /** Require sustained slow windows; transitions change rendering only. */
 export class GraphicsQuality{
