@@ -6,6 +6,7 @@ import {Supplies} from '../src/game/Supplies';
 import {Fog} from '../src/map/Fog';
 import {configureStage} from '../src/world/layout';
 import {doors,setBossEntranceClosed} from '../src/world/Threats';
+import {thunderbolt} from '../src/game/Thunderbolt';
 import {slash,katanaDamage} from '../src/game/Katana';
 import {attackPower,defensePower,movementPower,invincible,nightmareHealth,rareDrop,randomOutcome,referenceThunderDamage,parupunOutcomes} from '../src/game/PowerEffects';
 import {roomTargets,safeWarpTargets,useElixir,useParupun} from '../src/game/RareItems';
@@ -21,12 +22,25 @@ function fixture(){const supplies=new Supplies(),arsenal=new Arsenal();arsenal.u
 }
 beforeEach(()=>configureStage(0));
 describe('nightmare health and rare loot',()=>{
- it('uses exactly three upgraded thunder hits for all ordinary species, twenty for samurai',()=>{
-  for(const kind of ['PUNI','BOTTY','BALLOONER','TOX MUNCHER','LAVA HOPPER','INFANTRY'])expect(nightmareHealth(kind,3,100)).toBe(referenceThunderDamage*3);
-  expect(nightmareHealth('SAMURAI',3,1800)).toBe(referenceThunderDamage*20);expect(nightmareHealth('KING PUNI',3,5600)).toBe(5600);
+ it('gives room wipe half the probability and divides the rest evenly',()=>{const samples=Array.from({length:1600},(_,n)=>randomOutcome((n+.5)/1600));expect(samples.filter(s=>s==='room')).toHaveLength(800);for(const outcome of parupunOutcomes.slice(1))expect(samples.filter(s=>s===outcome)).toHaveLength(100);});
+ it('uses exactly two upgraded thunder hits for all ordinary species, twenty for samurai',()=>{
+  for(const kind of ['PUNI','BOTTY','BALLOONER','TOX MUNCHER','LAVA HOPPER','INFANTRY'])expect(nightmareHealth(kind,3,100)).toBe(referenceThunderDamage*2);
+  expect(nightmareHealth('SAMURAI',3,1800)).toBe(referenceThunderDamage*20);expect(nightmareHealth('KING PUNI',3,5600,2)).toBe(5700);
   for(const mode of [0,1,2])expect(nightmareHealth('PUNI',mode,120)).toBe(120);
  });
- it('drops rare items only on hard and nightmare, with distinct rare ranges',()=>{for(const mode of [0,1])expect(rareDrop(mode,0)).toBeUndefined();for(const mode of [2,3]){expect(rareDrop(mode,.014)).toBe('ELIXIR');expect(rareDrop(mode,.015)).toBe('PARUPUN');expect(rareDrop(mode,.03)).toBeUndefined();}expect(parupunOutcomes.map((_,n)=>randomOutcome((n+.5)/9))).toEqual(parupunOutcomes);});
+ it('drops rare items only on hard and nightmare, with distinct rare ranges',()=>{for(const mode of [0,1])expect(rareDrop(mode,0)).toBeUndefined();for(const mode of [2,3]){expect(rareDrop(mode,.014)).toBe('ELIXIR');expect(rareDrop(mode,.015)).toBe('PARUPUN');expect(rareDrop(mode,.03)).toBeUndefined();}expect(randomOutcome(.499999)).toBe('room');expect(parupunOutcomes.slice(1).map((_,n)=>randomOutcome(.5+(n+.5)/16))).toEqual(parupunOutcomes.slice(1));});
+ it('requires two actual upgraded beams for every nightmare ordinary species',()=>{
+  for(const kind of ['PUNI','BOTTY','BALLOONER','TOX MUNCHER','LAVA HOPPER','INFANTRY']){
+   const g=fixture(),target=enemy(kind,26,34,nightmareHealth(kind,3,100));g.enemies=[target] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};
+   const direction=new T.Vector3(0,0,-1);thunderbolt(g,direction);expect(target.hp).toBe(285);expect(target.alive).toBe(true);thunderbolt(g,direction);expect(target.hp).toBe(0);expect(target.alive).toBe(false);
+  }
+ });
+ it('requires ten, fifteen and twenty actual upgraded beams for the three nightmare bosses',()=>{
+  for(const [stage,count] of [10,15,20].entries()){
+   const g=fixture(),boss=enemy('KING PUNI',26,34,nightmareHealth('KING PUNI',3,420,stage));g.enemies=[boss] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};g.position.y=2.2;
+   const direction=new T.Vector3(0,0,-1);for(let n=1;n<count;n++)thunderbolt(g,direction);expect(boss.hp).toBe(285);expect(boss.alive).toBe(true);thunderbolt(g,direction);expect(boss.alive).toBe(false);expect(boss.hp).toBe(0);
+  }
+ });
 });
 describe('murasame life cost',()=>{
  it('charges a missed swing once; cooldown does not charge another point',()=>{const g=fixture();slash(g);expect(g.hp).toBe(59);slash(g);expect(g.hp).toBe(59);g.time+=.5;slash(g);expect(g.hp).toBe(58);});

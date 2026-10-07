@@ -4,7 +4,7 @@ export const itemInfo:Record<string,{icon:string,effect:string,use:string}>={
  KATANA:{icon:'⚔️',effect:'ちかくの てきを まとめて なぎはらう！',use:'タップか クリックで きる。とおくへは とどかないよ'},
  MURASAME:{icon:'⚔️',effect:'ボスいがいの てきを いちげきで たおす ようとう',use:'ふるたび たいりょくを 1 つかうよ。たいりょくが 1 だと ふれないよ'},
  ELIXIR:{icon:'✨',effect:'たいりょくを ぜんぶ かいふく。どく・まひも なおすよ',use:'えを えらんで「つかう」を おそう'},
- PARUPUN:{icon:'🔮',effect:'なにが おこるか わからない！',use:'えを えらんで「つかう」を おそう'},
+ PARUPUN:{icon:'🔮',effect:'はんぶんの かくりつで へやの てきを ぜんぶ たおせるよ！\nでも もうはんぶんは なにが おこるか わからないんだ。\nボスには きかないよ',use:'えを えらんで「つかう」を おそう'},
  KEY:{icon:'⭐',effect:'にじのほしの かけらだよ',use:'みっつ そろうと にじのほしに なるよ'},
  POTION:{icon:'🧴',effect:'たいりょくを かいふくするよ',use:'たいりょくが へったら つかおう'},
  'BIG POTION':{icon:'🧴',effect:'たいりょくを たくさん かいふくするよ',use:'たいりょくが へったら つかおう'},

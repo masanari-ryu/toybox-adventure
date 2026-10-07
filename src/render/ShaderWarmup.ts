@@ -26,7 +26,7 @@ export class ShaderWarmup {
   const gl=this.renderer.getContext(),extension=gl.getExtension('KHR_parallel_shader_compile'),programs=[...(this.renderer.info.programs??[])];
   if(!extension){await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));progress(1);return !this.aborted;}
   return await new Promise<boolean>(resolve=>{
-   const check=()=>{if(this.aborted||gl.isContextLost()){resolve(false);return;}let ready=0;for(const p of programs)if(gl.getProgramParameter(p.program,extension.COMPLETION_STATUS_KHR))ready++;progress(.45+.55*ready/Math.max(1,programs.length));if(ready===programs.length)resolve(true);else setTimeout(check,8);};check();
+   const check=()=>{if(this.aborted||gl.isContextLost()){resolve(false);return;}let ready=0;for(const p of programs)if(!p.program||!gl.isProgram(p.program)||gl.getProgramParameter(p.program,extension.COMPLETION_STATUS_KHR))ready++;progress(.45+.55*ready/Math.max(1,programs.length));if(ready===programs.length)resolve(true);else setTimeout(check,8);};check();
   });
  }
  cancel(){this.aborted=true;this.dispose();}
