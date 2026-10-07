@@ -52,7 +52,7 @@
  #overlay:has(#challenge:not([hidden])) #challenge-options button{flex:1 1 26%;min-width:0;min-height:44px;font-size:clamp(12px,1.8vw,16px);padding:8px 5px;white-space:nowrap}
  #overlay:has(#challenge:not([hidden])) #challenge legend{margin:0 0 6px;font-size:14px}
  #overlay:has(#challenge:not([hidden])) #start,#overlay:has(#challenge:not([hidden])) #practice{position:static;left:auto;top:auto;width:100%;margin:0;min-height:44px;padding:10px 12px;font-size:clamp(15px,2.3vw,20px)}
- #overlay:has(#challenge:not([hidden])) .instructions{font-size:11px;line-height:1.45;margin:2px 0 0}
+ #overlay:has(#challenge:not([hidden])) .instructions{position:static;left:auto;top:auto;bottom:auto;font-size:11px;line-height:1.45;margin:2px 0 0}
 }
 @media (orientation:portrait){#overlay:has(#challenge:not([hidden])){justify-content:safe center;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom));gap:8px}#overlay:has(#challenge:not([hidden])) footer{position:static;margin-top:8px}#overlay:has(#challenge:not([hidden])) #challenge,#overlay:has(#challenge:not([hidden])) #practice{position:static;width:100%;margin:0}#overlay:has(#challenge:not([hidden])) #challenge-options button{flex:1;white-space:nowrap}#overlay:has(#challenge:not([hidden])) .chips{flex-wrap:wrap;margin:0;gap:6px}}
 #overlay:has(#challenge:not([hidden])){justify-content:safe center}
@@ -66,3 +66,7 @@
 #ending-caption{white-space:pre-line}
 
 .nightmare-illustration{display:none}.nightmare-art .ending-panel,.nightmare-art .memory-stars{display:none}.nightmare-art .nightmare-illustration{display:block;position:absolute;inset:0;background-size:contain;background-position:center;background-repeat:no-repeat;animation:nightmare-memory 8s ease-out both}.nightmare-art[data-panel="wake"] .nightmare-illustration{background-image:url('/assets/nightmare-wake.webp')}.nightmare-art[data-panel="thanks"] .nightmare-illustration{background-image:url('/assets/nightmare-thanks.webp')}.nightmare-art[data-panel="school"] .nightmare-illustration{display:none}.nightmare-art[data-panel="school"] .school-panel{display:block;opacity:1}.nightmare-art[data-panel="friends"] .nightmare-illustration{background-image:url('/assets/nightmare-friends.webp')}@keyframes nightmare-memory{from{transform:scale(1)}to{transform:scale(1.035)}}@media(prefers-reduced-motion:reduce){.nightmare-art .nightmare-illustration{animation:none}}
+
+body:not(.touch) #scene{cursor:crosshair}
+
+#intro-link{display:none;min-height:44px;padding:8px 12px;align-items:center;align-self:flex-start;font-size:14px;line-height:1.4;color:#d0ffe6;text-underline-offset:4px;touch-action:manipulation;border-radius:10px}#intro-link:focus-visible{outline:3px solid #fff5a2;outline-offset:2px}#overlay:has(#challenge:not([hidden])) #intro-link{display:inline-flex}

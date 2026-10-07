@@ -15,7 +15,7 @@ export class Practice{
  if(lesson===1){const e=new Enemy('BOTTY',22,22);e.baseScale=1.2;e.group.scale.setScalar(1.2);g.enemies.push(e);g.scene.add(e.group);}
  if(lesson===4)for(const [x,z]of [[18,20],[26,18],[22,14]]){const e=new Enemy('PUNI',x,z);e.baseScale=.84;e.group.scale.setScalar(.84);e.tier=0;e.cooldown=2;g.enemies.push(e);g.scene.add(e.group);}
  g.updateHud();this.hud();const info=practiceLessons[lesson];g.card.show(`れんしゅう ${lesson+1} · ${info.name}`,g.input.touch?info.text:info.pc,'🧸');}
- update(dt:number){const g=this.g;movePlayer(g,dt);if(g.input.fire)fire(g);if(this.lesson===4&&!this.done)updateEnemies(g,dt);updateShots(g,dt);g.updateParticles(dt);g.world.update(g.time);g.energy=Math.min(100,g.energy+dt*6);g.hp=Math.max(40,g.hp);if(g.time>g.hudTime){g.hudTime=g.time+.1;g.updateHud();this.hud();}if(this.done)return;
+ update(dt:number){const g=this.g;movePlayer(g,dt);g.useItems();if(g.input.fire)fire(g);if(this.lesson===4&&!this.done)updateEnemies(g,dt);updateShots(g,dt);g.updateParticles(dt);g.world.update(g.time);g.energy=Math.min(100,g.energy+dt*6);g.hp=Math.max(40,g.hp);if(g.time>g.hudTime){g.hudTime=g.time+.1;g.updateHud();this.hud();}if(this.done)return;
  if((this.lesson===0||this.lesson===2)&&this.ring&&g.position.distanceTo(this.ring.position.clone().setY(1.65))<1.6)this.complete();
  if((this.lesson===1||this.lesson===4)&&g.enemies.every(e=>!e.alive))this.complete();
  if(this.lesson===3){if(g.time>=this.nextShot){this.nextShot=g.time+2.8;const origin=new T.Vector3(g.position.x,1.65,10),m=mesh(new T.SphereGeometry(.3,12,8),0x70dcff);m.position.copy(origin);g.scene.add(m);g.shots.push({m,v:g.position.clone().sub(origin).normalize().multiplyScalar(9),life:5,damage:0,enemy:true,kind:0});g.notify('たまが くるよ！ カニあるきで よけよう');}

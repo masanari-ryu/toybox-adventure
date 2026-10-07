@@ -1,0 +1,7 @@
+# Preserve search results and bookmarks after the move to GitHub Pages.
+/adventure https://masanari-ryu.github.io/toybox-adventure/adventure/ 301
+/adventure/manual https://masanari-ryu.github.io/toybox-adventure/adventure/manual.html 301
+/adventure/manual/ https://masanari-ryu.github.io/toybox-adventure/adventure/manual.html 301
+/adventure/terms https://masanari-ryu.github.io/toybox-adventure/adventure/terms.html 301
+/adventure/terms/ https://masanari-ryu.github.io/toybox-adventure/adventure/terms.html 301
+/* https://masanari-ryu.github.io/toybox-adventure/:splat 301

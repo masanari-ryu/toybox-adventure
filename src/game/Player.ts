@@ -2,7 +2,7 @@ import * as T from 'three';
 import type {Game} from './Game';
 import {canMoveAt} from '../world/layout';
 import {supportHeight} from '../world/CastleFloors';
-export function movePlayer(g:Game,dt:number){const i=g.input;g.yaw-=i.lookX;g.pitch=T.MathUtils.clamp(g.pitch-i.lookY,-1.15,1.15);i.lookX=i.lookY=0;
+export function movePlayer(g:Game,dt:number){const i=g.input;i.validateTouch?.();g.yaw-=i.lookX;g.pitch=T.MathUtils.clamp(g.pitch-i.lookY,-1.15,1.15);i.lookX=i.lookY=0;
  const x=(i.keys.has('KeyD')?1:0)-(i.keys.has('KeyA')?1:0)+i.mx,z=(i.keys.has('KeyW')?1:0)-(i.keys.has('KeyS')?1:0)+i.my;
  const frozen=g.time<g.paralyzedUntil;const wish=new T.Vector3(frozen?0:x,0,frozen?0:-z);if(frozen)g.velocity.set(0,0,0);if(wish.length()>1)wish.normalize();wish.applyAxisAngle(new T.Vector3(0,1,0),g.yaw);const speed=(i.dash||i.keys.has('ShiftLeft')?10:6.5)*(g.buffs.has('CANDY')?1.3:1);g.velocity.lerp(wish.multiplyScalar(speed),1-Math.exp(-dt*12));
  const nx=g.position.x+g.velocity.x*dt,nz=g.position.z+g.velocity.z*dt;if(canMoveAt(nx,g.position.z,g.position.y,g.gate))g.position.x=nx;if(canMoveAt(g.position.x,nz,g.position.y,g.gate))g.position.z=nz;

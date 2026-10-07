@@ -5,7 +5,7 @@ it('preserves easy and applies exact regular enemy multipliers without cloning b
  for(const stage of stages){expect(challengeSpawns(stage,0)).toEqual(stage.enemies);
   const normal=stage.enemies.filter(([k])=>!['KING PUNI','SAMURAI'].includes(k)).length;
   for(let level=1;level<4;level++){const enemies=challengeSpawns(stage,level),layout=makeLayout(stage);
-   expect(enemies.filter(([k])=>!['KING PUNI','SAMURAI'].includes(k))).toHaveLength(Math.ceil(normal*challenges[level].count));
+   expect(enemies.filter(([k])=>!['KING PUNI','SAMURAI'].includes(k))).toHaveLength(level===3?Math.ceil(normal*2.5)*2:Math.ceil(normal*challenges[level].count));
    expect(enemies.filter(([k])=>k==='KING PUNI')).toHaveLength(1);
    expect(enemies.filter(([k])=>k==='SAMURAI').length).toBe(stage.enemies.filter(([k])=>k==='SAMURAI').length);
    for(const [,x,z]of enemies)expect(layout[Math.floor(z/4)][Math.floor(x/4)]).toBe('.');

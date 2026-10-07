@@ -1,3 +1,4 @@
+import {shotDirection} from '../input/Aim';
 import {decorateProjectile} from '../effects/ProjectileLook';
 import {infantrySpeed,puniShoots} from './CombatRules';
 import {enemyPressure,enemyRecovery} from './EnemyPressure';
@@ -17,7 +18,7 @@ import {canMove,lineOfSight,wall,canMoveAt,wallAt,sightAt} from '../world/layout
 import {doors} from '../world/Threats';
 import {patrolTarget} from '../ai/Patrol';
 import {route} from '../world/Navigation';
-export function fire(g:Game){const w=g.input.weapon;if(w===3){slash(g);return;}if(g.time<g.shotTime||w===2&&g.energy<12)return;g.shotTime=g.time+[.19,.65,.48][w]*(g.arsenal.levels[w]?.75:1);if(w===2)g.energy-=12;g.recoil=.07;g.sound.effect([850,430,1200][w]+g.arsenal.levels[w]*140);const aim=g.input.tapAim;if(aim)g.camera.updateMatrixWorld(true);const d=aim?new T.Vector3(aim.x,aim.y,.5).unproject(g.camera).sub(g.camera.position).normalize():new T.Vector3(0,0,-1).applyQuaternion(g.camera.quaternion);g.input.tapAim=null;
+export function fire(g:Game){const w=g.input.weapon;if(w===3){slash(g);return;}if(g.time<g.shotTime||w===2&&g.energy<12)return;g.shotTime=g.time+[.19,.65,.48][w]*(g.arsenal.levels[w]?.75:1);if(w===2)g.energy-=12;g.recoil=.07;g.sound.effect([850,430,1200][w]+g.arsenal.levels[w]*140);const aim=g.input.tapAim;const d=shotDirection(g.camera,g.input);
  if(g.input.touch){let best=.965-Math.min(.01,g.failures*.003);for(const e of g.enemies)if(e.alive&&(e.kind!=='KING PUNI'||g.gate)&&sightAt(g.position.x,g.position.z,g.position.y,e.group.position.x,e.group.position.z,e.group.position.y+e.baseScale,g.gate)){const dir=e.group.position.clone().add(new T.Vector3(0,e.kind==='KING PUNI'?2.2*e.baseScale:e.baseScale,0)).sub(g.position).normalize(),dot=dir.dot(d);if(dot>best){best=dot;d.lerp(dir,aim?1:.18).normalize();}}}
  if(w===2){thunderbolt(g,d);return;}
  const m=mesh(w===2?new T.OctahedronGeometry(.25,1):new T.SphereGeometry(w===1?.38:.1,12,8),[0xffdd79,0x8ef3e2,0xe2acff][w]);decorateProjectile(m,false,w,g.input.touch,d);m.position.copy(g.position).addScaledVector(d,.8);g.scene.add(m);g.shots.push({m,v:d.multiplyScalar(w===1?19:48),life:3,damage:[18,42,95][w]*(g.arsenal.levels[w]?1.65:1)*(g.buffs.has('RAINBOW')?1.6:1),enemy:false,kind:w,pierced:new Set()});}

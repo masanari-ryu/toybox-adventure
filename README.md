@@ -29,7 +29,7 @@ npm run build
 
 ## 操作
 
-PC：WASDで移動、マウスで視点、左クリック長押しで射撃、Shiftでダッシュ、Eでスイッチ、Escで一時停止。1〜4で取得済み武器へ切替、Qで回復、Rで解毒。アイテムや武器の画面ボタンも使用できます。プレイヤー画面の説明はかな表記です。
+PC：WASDで移動、画面上のカーソル位置へ左クリックで射撃（長押しで連射）、右ボタンを押したままドラッグで視点、Shiftでダッシュ、Eでスイッチ、Escで一時停止。1〜4で取得済み武器へ切替、Qで回復、Rで解毒。アイテムや武器の画面ボタンも使用できます。プレイヤー画面の説明はかな表記です。
 
 スマートフォン・タブレット：横画面。画面左側のスワイプで移動（上＝前進、下＝後退、左右＝カニ歩き）。画面右側のスワイプで上下左右の視点変更。射撃は左右を問わず全画面のタップした場所へ向かいます。左指で移動を保持したまま、右指で旋回とタップ射撃が可能です。指の役割は最初に触れた側で固定し、中央をまたいでも切り替えません。中央の照準は表示しません。アイテムの絵で選び「つかう」、武器の絵で切替、スイッチ付近の「おす」で操作。移動・射撃の操作パネルはありません。
 
@@ -100,6 +100,14 @@ Optional stage-two samurai room: warning and cancel/accept before opening, 1100 
 Open `/?train=outdoor` for the daylight railway, or `/?train=space` for the planet and star railway. These routes bypass the dungeon, start only after a user gesture, and restart the same railway after arrival or a retry. Both are included in the production build. Scenery uses original painted canvas textures for sky, nebulae, planet bands, grass/flowers, and toy metal panels.
 
 ### Challenge selection
-Title choices: Easy retains current balance; Normal uses 1.5× regular enemies and 1.3× all enemy HP; Hard 2× / 1.5×; Nightmare 2.5× / 2×. Fractional counts round up. Bosses and samurai remain unique. Reinforcements stay in their original rooms with a clear entrance, walls and doorways. Train targets also scale. Completing the Hard campaign unlocks Nightmare for the browser via localStorage; blocked storage retains the unlock for the current session. Restart preserves selected challenge. No campaign saves or offline play are provided.
+Title choices: Easy retains current balance; Normal uses 1.5× regular enemies and 1.3× all enemy HP; Hard 2× / 1.5×; Nightmare doubles the former rounded 2.5× regular count / 2× HP. Other fractional counts round up. Bosses and samurai remain unique. Reinforcements stay in their original rooms with a clear entrance, walls and doorways. Train targets also scale. Completing the Hard campaign unlocks Nightmare for the browser via localStorage; blocked storage retains the unlock for the current session. Restart preserves selected challenge. No campaign saves or offline play are provided.
 
 The web manifest supplies standalone landscape launch and home-screen icons. Actual install availability and rotation depend on device/browser support. Landing page and manual explain adding to the home screen, the current combat/katana/train progression, difficulty multipliers and local unlock storage.
+
+## 2026-10-07 operation and nightmare update
+
+Touch releases are tracked across the window, lost capture, cancellation, resize and background transitions. A held native touch keeps moving without an inactivity timeout; each movement frame also validates capture ownership. A second finger can select/use supplies or activate menu buttons independently, without duplicate clicks.
+
+Only the strongest acquired ranged weapon and the unlocked katana remain selectable. Superseded weapon unlock/upgrade data is retained. The third-floor entrance starts boss combat when opened and closes behind the player after they fully cross it; defeating the boss and its remaining minions opens the exit. Unencountered major-enemy health bars stay hidden.
+
+Nightmare regular enemy counts are now exactly twice the former rounded 2.5x counts: 136, 210 and 310, plus unique bosses/samurai. Every 18 active gameplay seconds, 1–3 defeated regular enemies reappear with a 1.1-second warning; existing actors are reused, so the scene does not grow indefinitely. Poison and lava areas are approximately 1.7x larger; damage rates are unchanged.
