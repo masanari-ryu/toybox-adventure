@@ -7,7 +7,7 @@ export function showPreview(renderer:T.WebGLRenderer,object:T.Object3D,weapon=-1
  const stamp=++sequence;active?.cancel();const cacheKey=key||`weapon/${weapon}`;
  const display=(src:string)=>{const img=document.createElement('img');img.alt='みつけた おもちゃ';img.src=src;document.getElementById('card-icon')!.replaceChildren(img);};
  if((key||weapon>=0)&&images.has(cacheKey)){display(images.get(cacheKey)!);return;}
- const scene=new T.Scene(),group=weapon<0?object.clone(true):new T.Group();group.position.set(0,0,0);group.rotation.set(0,.4,0);if(weapon>=0){buildBlaster(group as T.Group,weapon);group.position.set(-.4,.3,.8);group.scale.setScalar(2);}scene.add(group,new T.HemisphereLight(0xffffff,0xc0d8d2,3));const light=new T.DirectionalLight(0xffefc4,3);light.position.set(3,5,4);scene.add(light);const camera=new T.PerspectiveCamera(40,1,.1,20);camera.position.set(2,1.4,3);camera.lookAt(0,.25,0);
+ const scene=new T.Scene(),group=weapon<0?object.clone(true):new T.Group();group.visible=true;group.position.set(0,0,0);group.rotation.set(0,.4,0);if(weapon>=0){buildBlaster(group as T.Group,weapon);group.position.set(-.4,.3,.8);group.scale.setScalar(2);}scene.add(group,new T.HemisphereLight(0xffffff,0xc0d8d2,3));const light=new T.DirectionalLight(0xffefc4,3);light.position.set(3,5,4);scene.add(light);const camera=new T.PerspectiveCamera(40,1,.1,20);camera.position.set(2,1.4,3);camera.lookAt(0,.25,0);
  const target=new T.WebGLRenderTarget(256,256),warmup=new ShaderWarmup(renderer,scene,camera,target);active=warmup;
  const card=document.getElementById('card')!,observer=new MutationObserver(()=>{if(card.hidden)warmup.cancel();});observer.observe(card,{attributes:true,attributeFilter:['hidden']});
  void warmup.prepare().then(async ready=>{
