@@ -26,10 +26,12 @@ export function finishTexture(kind:Finish){
 function heart(c:CanvasRenderingContext2D,x:number,y:number){c.beginPath();c.moveTo(x,y+20);c.bezierCurveTo(x-55,y-12,x-36,y-48,x,y-26);c.bezierCurveTo(x+36,y-48,x+55,y-12,x,y+20);c.fill();}
 function star(c:CanvasRenderingContext2D,x:number,y:number,r:number){c.beginPath();for(let n=0;n<10;n++){const a=n*Math.PI/5-Math.PI/2,rad=n%2?r*.45:r;const px=x+Math.cos(a)*rad,py=y+Math.sin(a)*rad;n?c.lineTo(px,py):c.moveTo(px,py);}c.closePath();c.fill();}
 export function itemTexture(kind:string){
- const key=kind.includes('POTION')?'potion':kind==='ANTIDOTE'?'leaf':kind==='CANDY'?'candy':kind==='LAVA CHARM'?'flame':kind==='ARMOR CELL'||kind==='SHIELD'?'shield':kind==='RAINBOW'||kind==='MEGA STAR'?'rainbow':kind.includes('MODULE')||kind.includes('UPGRADE')||kind==='AMMO CELL'?'circuit':'star';
+ const key=kind==='ELIXIR'?'elixir':kind==='PARUPUN'?'mystery':kind.includes('POTION')?'potion':kind==='ANTIDOTE'?'leaf':kind==='CANDY'?'candy':kind==='LAVA CHARM'?'flame':kind==='ARMOR CELL'||kind==='SHIELD'?'shield':kind==='RAINBOW'||kind==='MEGA STAR'?'rainbow':kind.includes('MODULE')||kind.includes('UPGRADE')||kind==='AMMO CELL'?'circuit':'star';
  const cached=items.get(key);if(cached)return cached;
  const {canvas,c}=surface();c.fillStyle='#f2faf7';c.fillRect(0,0,256,256);grain(c,1800);
- if(key==='potion'||key==='leaf'){
+ if(key==='elixir'||key==='mystery'){
+  c.fillStyle=key==='elixir'?'#ffe392':'#c4a3ee';c.fillRect(0,0,256,256);c.fillStyle='#fff9e6';c.fillRect(0,78,256,118);c.strokeStyle=key==='elixir'?'#ba8725':'#7550ae';c.lineWidth=4;c.strokeRect(4,80,248,114);for(const x of [64,192]){c.fillStyle=key==='elixir'?'#e8a825':'#9871d0';if(key==='elixir')star(c,x,138,32);else{c.font='bold 72px sans-serif';c.textAlign='center';c.fillText('?',x,163);}}
+ }else if(key==='potion'||key==='leaf'){
   c.fillStyle=key==='leaf'?'#83cda2':'#ef9fbb';c.fillRect(0,0,256,256);c.fillStyle='#fff9d9';c.fillRect(0,76,256,116);c.fillStyle='#c6a769';c.fillRect(0,76,256,5);c.fillRect(0,187,256,5);
   c.fillStyle=key==='potion'?'#db497c':'#4c9d58';
   for(const x of [64,192]){c.fillStyle=key==='potion'?'#db497c':'#4c9d58';if(key==='potion')heart(c,x,145);else{c.beginPath();c.ellipse(x,133,24,43,.5,0,7);c.fill();c.strokeStyle='#eaffcc';c.lineWidth=4;c.beginPath();c.moveTo(x-18,165);c.lineTo(x+19,103);c.stroke();}}
@@ -48,7 +50,7 @@ export function itemTexture(kind:string){
 }
 export function applyItemTextures(group:T.Group,kind:string){
  const body=group.children[0] as T.Mesh<T.BufferGeometry,T.MeshStandardMaterial>;
- body.material.map=itemTexture(kind);body.material.bumpMap=body.material.map;body.material.bumpScale=.012;body.material.roughness=kind.includes('POTION')||kind==='ANTIDOTE'?.23:.38;
- if(kind.includes('POTION')||kind==='ANTIDOTE')body.material.color.setHex(0xffffff);
+ body.material.map=itemTexture(kind);body.material.bumpMap=body.material.map;body.material.bumpScale=.012;body.material.roughness=kind.includes('POTION')||['ANTIDOTE','ELIXIR','PARUPUN'].includes(kind)?.23:.38;
+ if(kind.includes('POTION')||['ANTIDOTE','ELIXIR','PARUPUN'].includes(kind))body.material.color.setHex(0xffffff);
  for(const o of group.children.slice(1)){if(o instanceof T.Mesh&&o.material instanceof T.MeshStandardMaterial&&(o.material.emissive.getHex()===0||o.material.emissiveIntensity<1)){o.material.map=finishTexture('cork');o.material.bumpMap=o.material.map;o.material.bumpScale=.015;}}
 }
