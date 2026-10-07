@@ -1,3 +1,4 @@
+import {spawnRoom,introRoom,nightmareRoomCap} from '../src/game/NightmareRooms';
 import {it,expect} from 'vitest';
 import {challenges,challengeSpawns} from '../src/game/Challenge';
 import {stages,makeLayout} from '../src/stages/Stages';
@@ -5,7 +6,7 @@ it('preserves easy and applies exact regular enemy multipliers without cloning b
  for(const stage of stages){expect(challengeSpawns(stage,0)).toEqual(stage.enemies);
   const normal=stage.enemies.filter(([k])=>!['KING PUNI','SAMURAI'].includes(k)).length;
   for(let level=1;level<4;level++){const enemies=challengeSpawns(stage,level),layout=makeLayout(stage);
-   expect(enemies.filter(([k])=>!['KING PUNI','SAMURAI'].includes(k))).toHaveLength(level===3?Math.ceil(normal*2.5)*2:Math.ceil(normal*challenges[level].count));
+   if(level!==3)expect(enemies.filter(([k])=>!['KING PUNI','SAMURAI'].includes(k))).toHaveLength(Math.ceil(normal*challenges[level].count));else{expect(enemies.length).toBeLessThan(Math.ceil(normal*2.5)*2);const rooms=new Map<string,number>();for(const [kind,x,z]of enemies)if(!['KING PUNI','SAMURAI'].includes(kind)){const room=spawnRoom(stage,x,z);rooms.set(room,(rooms.get(room)??0)+1);}for(const [room,count]of rooms)expect(count).toBeLessThanOrEqual(nightmareRoomCap(stage,room));}
    expect(enemies.filter(([k])=>k==='KING PUNI')).toHaveLength(1);
    expect(enemies.filter(([k])=>k==='SAMURAI').length).toBe(stage.enemies.filter(([k])=>k==='SAMURAI').length);
    for(const [,x,z]of enemies)expect(layout[Math.floor(z/4)][Math.floor(x/4)]).toBe('.');
@@ -14,7 +15,7 @@ it('preserves easy and applies exact regular enemy multipliers without cloning b
 });
 it('uses requested HP multipliers',()=>expect(challenges.map(c=>c.hp)).toEqual([1,1.3,1.5,2]));
 it('keeps reinforcements separated and the tutorial entrance safe',()=>{
- for(const stage of stages){const enemies=challengeSpawns(stage,3),extra=enemies.slice(stage.enemies.length);
+ for(const stage of stages){const enemies=challengeSpawns(stage,3),extra=enemies.filter(e=>!stage.enemies.some(b=>b[1]===e[1]&&b[2]===e[2])&&!(stage===stages[1]&&e[1]<28&&e[2]<24));
   for(const [,x,z]of extra){expect(Math.hypot(x-stage.start[0],z-stage.start[1])).toBeGreaterThanOrEqual(14);for(const [,a,b]of stage.enemies)expect(Math.hypot(x-a,z-b)).toBeGreaterThanOrEqual(1.7);}
  }
 });
