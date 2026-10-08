@@ -13,4 +13,4 @@ export function roomIdForStage(stage:Stage,x:number,z:number,feet=0):string{
 export function nightmareRoom(stage:number,x:number,z:number,feet=0){return roomIdForStage(stages[stage],x,z,feet);}
 export function introRoom(stage:Stage){return roomIdForStage(stage,...stage.start);}
 export function spawnRoom(stage:Stage,x:number,z:number){return roomIdForStage(stage,x,z,stage===stages[2]?topHeight(x,z):0);}
-export const nightmareRoomCap=(stage:Stage,room:string)=>room===introRoom(stage)?8:stage===stages[0]?12:14;
+export const nightmareRoomCap=(stage:Stage,room:string,multiplier=2)=>(room===introRoom(stage)?8:stage===stages[0]?12:14)*multiplier;

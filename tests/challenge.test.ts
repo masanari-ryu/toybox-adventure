@@ -37,3 +37,5 @@ it('moves only hard consumables to guaranteed enemy drops with twice the easy bu
   expect(enemySupplyDrops(stage,0,1,10)).toEqual([]);
  }
 });
+
+it('doubles the previous nightmare first wave while keeping elite counts unique',()=>{for(const [index,previous]of [44,53,106].entries()){const enemies=challengeSpawns(stages[index],3);expect(enemies.filter(([kind])=>!['KING PUNI','SAMURAI'].includes(kind))).toHaveLength(previous*2);}});

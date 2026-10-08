@@ -12,16 +12,16 @@ for(const touch of [false,true])test(`major health and third-floor door combat $
  expect(await run(page,g=>g.position.z)).toBeLessThan(28.5);await page.screenshot({path:`screenshots/input-fix/${touch?'phone':'PC'}-boss.png`});
  await run(page,g=>{const boss=g.enemies.find((e:any)=>e.kind==='KING PUNI');g.damage(boss,100000);for(const e of g.enemies)if(e.alive&&e.floorY>=10&&e.group.position.x>80&&e.group.position.x<98&&e.group.position.z<30)g.damage(e,100000);g.finishBossArena();g.updateHud();});expect(await run(page,g=>g.world.gate.visible)).toBe(false);await expect(page.locator('#bossbar')).toBeHidden();await context.close();
 });
-for(const stage of [0,1,2])test(`nightmare finite room waves stage ${stage+1}`,async({page})=>{
+for(const stage of [0,1,2])test(`nightmare decreasing waves and patrols stage ${stage+1}`,async({page})=>{
  test.setTimeout(120000);await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();
  await page.evaluate(async(stage:number)=>{const {game:g}=await import(Array.from(document.scripts).find(s=>s.src.includes('/src/main.ts'))!.src);g.challenge=3;g.loadStage(stage);await g.visuals.ready;g.position.set(stage===1?50:26,1.65,stage===1?50:stage===2?58:26);for(const e of g.enemies){e.alive=false;e.group.visible=false;}g.state='playing';g.reinforcements.update(g);g.state='review';},stage);
  const total=await run(page,g=>g.enemies.length);expect(total).toBeLessThan([138,212,312][stage]);
- for(let n=1;n<(stage===0?2:3);n++){
-  const spawn=await run(page,g=>{const room=[...g.reinforcements.rooms.values()].find((r:any)=>r.actors.some((e:any)=>e.group.userData.waveRoom===g.reinforcements.pending?.room));g.state='playing';g.stageTime+=10;g.defeat.clear(g);g.reinforcements.update(g);g.state='review';return g.reinforcements.pending?.spawns.length??0;});expect(spawn).toBeGreaterThan(0);
-  await run(page,g=>{g.stageTime+=1.5;g.state='playing';g.reinforcements.update(g);g.state='review';});expect(await run(page,g=>g.enemies.filter((e:any)=>e.alive).length)).toBe(spawn);
-  await page.screenshot({path:`screenshots/nightmare-tactics/wave-${stage+1}-${n+1}.png`});await run(page,g=>{for(const e of g.enemies){e.alive=false;e.group.visible=false;}});
+ for(let n=1;n<3;n++){
+  const spawn=await run(page,g=>{const room=[...g.reinforcements.rooms.values()].find((r:any)=>r.actors.some((e:any)=>e.group.userData.waveRoom===g.reinforcements.pending?.room));g.state='playing';g.stageTime+=10;g.defeat.clear(g);g.reinforcements.update(g);g.state='review';const state=g.reinforcements.rooms.get(g.reinforcements.pending?.room);return {count:g.reinforcements.pending?.spawns.length??0,desired:Math.ceil(state.initial/2**state.wave)};});expect(spawn.count).toBe(spawn.desired);
+  await run(page,g=>{g.stageTime+=1.5;g.state='playing';g.reinforcements.update(g);g.state='review';});expect(await run(page,g=>g.enemies.filter((e:any)=>e.alive).length)).toBe(spawn.count);
+  await run(page,g=>{const e=g.enemies.find((e:any)=>e.alive);g.camera.position.copy(g.position);g.camera.lookAt(e.group.position.x,e.floorY+1.5,e.group.position.z);});await page.waitForTimeout(100);await page.screenshot({path:`screenshots/nightmare-tactics/wave-${stage+1}-${n+1}.png`});await run(page,g=>{for(const e of g.enemies){e.alive=false;e.group.visible=false;}});
  }
- await run(page,g=>{g.state='playing';g.reinforcements.update(g);g.stageTime+=1000;g.reinforcements.update(g);g.state='review';});expect(await run(page,g=>g.reinforcements.pending)).toBeNull();expect(await run(page,g=>[...g.reinforcements.rooms.values()].some((r:any)=>r.cleared))).toBe(true);expect(await run(page,g=>g.enemies.length)).toBe(total);
+ await run(page,g=>{g.state='playing';g.reinforcements.update(g);g.stageTime+=12;g.reinforcements.update(g);g.state='review';});expect(await run(page,g=>g.reinforcements.pending?.spawns.length)).toBe(2);await run(page,g=>{g.stageTime+=1.5;g.state='playing';g.reinforcements.update(g);g.state='review';});expect(await run(page,g=>g.enemies.filter((e:any)=>e.alive).length)).toBe(2);expect(await run(page,g=>[...g.reinforcements.rooms.values()].some((r:any)=>r.cleared))).toBe(true);expect(await run(page,g=>g.enemies.length)).toBe(total);
 });
 
 test('nightmare tactical combat stays responsive on mobile',async({browser})=>{

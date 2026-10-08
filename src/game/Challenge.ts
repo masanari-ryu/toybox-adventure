@@ -1,4 +1,4 @@
-import {spawnRoom,introRoom,nightmareRoomCap} from './NightmareRooms';
+import {spawnRoom,nightmareRoomCap} from './NightmareRooms';
 import type {Stage} from '../stages/Stages';
 import {makeLayout} from '../stages/Stages';
 export const challenges=[
@@ -11,15 +11,15 @@ export const unlockKey='toybox-nightmare-unlocked';
 export function nightmareUnlocked(){try{return localStorage.getItem(unlockKey)==='1';}catch{return false;}}
 export function unlockNightmare(){try{localStorage.setItem(unlockKey,'1');return true;}catch{return false;}}
 /** Keep unique bosses, and spread extra regular enemies within their original room. */
-export function challengeSpawns(stage:Stage,level:number):Stage['enemies']{
+function baseChallengeSpawns(stage:Stage,level:number):Stage['enemies']{
  const base=stage.enemies,regular=base.filter(([kind])=>kind!=='KING PUNI'&&kind!=='SAMURAI');
  const target=Math.ceil(regular.length*(level===3?1.75:challenges[level].count));
  const counts=new Map<string,number>();
- const result=base.filter(([kind,x,z])=>{if(level!==3||kind==='KING PUNI'||kind==='SAMURAI')return true;const room=spawnRoom(stage,x,z),count=counts.get(room)??0;if(count>=nightmareRoomCap(stage,room))return false;counts.set(room,count+1);return true;}).map(p=>[...p]as Stage['enemies'][number]);
+ const result=base.filter(([kind,x,z])=>{if(level!==3||kind==='KING PUNI'||kind==='SAMURAI')return true;const room=spawnRoom(stage,x,z),count=counts.get(room)??0;if(count>=nightmareRoomCap(stage,room,1))return false;counts.set(room,count+1);return true;}).map(p=>[...p]as Stage['enemies'][number]);
  const extra=target-result.filter(([k])=>k!=='KING PUNI'&&k!=='SAMURAI').length;const layout=makeLayout(stage);
  const safe=(x:number,z:number)=>layout[Math.floor(z/4)]?.[Math.floor(x/4)]==='.';
  for(let n=0;n<extra;n++){
-  const eligible=level===3?regular.filter(([,x,z])=>(counts.get(spawnRoom(stage,x,z))??0)<nightmareRoomCap(stage,spawnRoom(stage,x,z))):regular;if(!eligible.length)break;
+  const eligible=level===3?regular.filter(([,x,z])=>(counts.get(spawnRoom(stage,x,z))??0)<nightmareRoomCap(stage,spawnRoom(stage,x,z),1)):regular;if(!eligible.length)break;
   const [sourceKind,x,z,yaw]=eligible[n%eligible.length],kind=level===3?(['PUNI','BOTTY','INFANTRY',stage.pools.length?'TOX MUNCHER':stage.lava.length?'LAVA HOPPER':'BALLOONER']as const)[n%4]:sourceKind;let best:[number,number]|undefined;
   // Deterministic placement, clear of walls, doors, the entrance and existing bodies.
   for(let attempt=0;attempt<(level===3?2400:120);attempt++){
@@ -38,6 +38,24 @@ export function challengeSpawns(stage:Stage,level:number):Stage['enemies']{
   result.push([kind,...best,yaw]);if(level===3){const room=spawnRoom(stage,...best);counts.set(room,(counts.get(room)??0)+1);}
  }
  if(level===3&&stage.enemies.some(([kind])=>kind==='SAMURAI'))result.push(['INFANTRY',14,14,Math.PI],['INFANTRY',22,10,Math.PI],['BOTTY',14,22,Math.PI]);
+ return result;
+}
+/** Double the existing first-wave composition without changing other difficulties or elites. */
+export function challengeSpawns(stage:Stage,level:number):Stage['enemies']{
+ const base=baseChallengeSpawns(stage,level);if(level!==3)return base;
+ const result=base.map(e=>[...e]as Stage['enemies'][number]),layout=makeLayout(stage);
+ const safe=(x:number,z:number)=>layout[Math.floor(z/4)]?.[Math.floor(x/4)]==='.';
+ for(const [kind,x,z,yaw]of base){
+  if(kind==='KING PUNI'||kind==='SAMURAI')continue;const room=spawnRoom(stage,x,z);let point:[number,number]|undefined;
+  for(let n=0;n<4800;n++){const angle=n*2.399963,r=1.8+(n%80)*.48,nx=x+Math.cos(angle)*r,nz=z+Math.sin(angle)*r;
+   if(spawnRoom(stage,nx,nz)!==room||Math.hypot(nx-stage.start[0],nz-stage.start[1])<14)continue;
+   if(![[0,0],[.75,0],[-.75,0],[0,.75],[0,-.75]].every(([a,b])=>safe(nx+a,nz+b)))continue;
+   if(stage.doors.some(d=>Math.hypot(d.x-nx,d.z-nz)<2)||result.some(([,a,b])=>Math.hypot(a-nx,b-nz)<1.7))continue;
+   point=[nx,nz];break;
+  }
+  if(!point)throw new Error(`No safe doubled nightmare position: ${stage.name} ${room}`);
+  result.push([kind,...point,yaw]);
+ }
  return result;
 }
 /** Scale supplies only; keys, batteries and weapon rewards stay unique. */
