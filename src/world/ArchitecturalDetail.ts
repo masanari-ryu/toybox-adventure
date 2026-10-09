@@ -1,3 +1,4 @@
+import {parallelWallFinish} from '../effects/NightmarePalette';
 import {toySheet} from './ToyIllustration';
 import * as T from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -16,7 +17,7 @@ const star=starGeometry();
 /** Facade moulding and floor joints are rendered in compact batches, never colliders. */
 export class ArchitecturalDetail {
  group=new T.Group();private chunks:Chunk[]=[];
- constructor(layout:string[],stage:number){const body=surfaceMaterial(stage===0?0xf9dca4:stage===1?0xffc9d7:0x8499c4,stage===0?'wood':'plastic',{map:toySheet(stage===0?'wood':'panel')}),trim=surfaceMaterial(stage===0?0xeac781:stage===1?0xd29ea2:0xcab878,'metal'),badge=surfaceMaterial(stage===1?0xdffcf2:0xffe399,'plastic'),joints=surfaceMaterial(stage===0?0xb19a70:stage===1?0xaabbc2:0x667da0,'rubber');const shadowTemplate=contactShadow(1,1,.48),shadowMaterial=shadowTemplate.material;shadowTemplate.geometry.dispose();const materials=[body,trim,badge,joints],geometries=[cube,cube,star,screw,new T.BoxGeometry(1,1,1),new T.PlaneGeometry(1,1)];const map=new Map<string,Chunk>(),pose=new T.Object3D(),face=new T.Matrix4();
+ constructor(layout:string[],stage:number,parallel=false){const body=surfaceMaterial(stage===0?0xf9dca4:stage===1?0xffc9d7:0x8499c4,stage===0?'wood':'plastic',{map:toySheet(stage===0?'wood':'panel')}),trim=surfaceMaterial(stage===0?0xeac781:stage===1?0xd29ea2:0xcab878,'metal'),badge=surfaceMaterial(stage===1?0xdffcf2:0xffe399,'plastic'),joints=surfaceMaterial(stage===0?0xb19a70:stage===1?0xaabbc2:0x667da0,'rubber');if(parallel)for(const mat of [body,trim,badge])parallelWallFinish(mat,stage);const shadowTemplate=contactShadow(1,1,.48),shadowMaterial=shadowTemplate.material;shadowTemplate.geometry.dispose();const materials=[body,trim,badge,joints],geometries=[cube,cube,star,screw,new T.BoxGeometry(1,1,1),new T.PlaneGeometry(1,1)];const map=new Map<string,Chunk>(),pose=new T.Object3D(),face=new T.Matrix4();
   const chunk=(x:number,z:number)=>{const cx=Math.floor(x/24)*24+12,cz=Math.floor(z/24)*24+12,key=`${cx}:${cz}`;let ch=map.get(key);if(!ch){ch={x:cx,z:cz,group:new T.Group(),parts:[[],[],[],[],[],[]]};ch.group.position.set(cx,0,cz);map.set(key,ch);this.chunks.push(ch);this.group.add(ch.group);}return ch;};
   const part=(ch:Chunk,bucket:number,x:number,y:number,z:number,sx:number,sy:number,sz:number,color?:T.ColorRepresentation,rotationX=0)=>{pose.position.set(x,y,z);pose.rotation.set(rotationX,0,0);pose.scale.set(sx,sy,sz);pose.updateMatrix();ch.parts[bucket].push({matrix:new T.Matrix4().multiplyMatrices(face,pose.matrix),color});};
   for(let r=0;r<layout.length;r++)for(let c=0;c<layout[r].length;c++){

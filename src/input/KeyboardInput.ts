@@ -10,7 +10,7 @@ export function keyboard(i:Input,canvas:HTMLCanvasElement,pause:()=>void,active:
   i.mouseAim={x:Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1)),y:Math.max(-1,Math.min(1,1-(e.clientY-r.top)/r.height*2))};
  };
  window.addEventListener('clear-controls',()=>{gesture=turning=false;if(captured!==null&&canvas.hasPointerCapture(captured))canvas.releasePointerCapture(captured);captured=null;});
- window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();i.keys.add(e.code);if(e.code==='KeyE')i.interact=true;if(e.code==='KeyQ')i.heal=true;if(e.code==='KeyR')i.antidote=true;if(e.code==='Escape')pause();if(/^Digit[1234]$/.test(e.code))i.weapon=Number(e.code.slice(-1))-1;});
+ window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();i.keys.add(e.code);if(e.code==='KeyE')i.interact=true;if(e.code==='KeyQ')i.heal=true;if(e.code==='KeyR')i.antidote=true;if(e.code==='Escape')pause();if(/^Digit[1234567]$/.test(e.code))i.weapon=Number(e.code.slice(-1))-1;});
  window.addEventListener('keyup',e=>i.keys.delete(e.code));
  window.addEventListener('pointerdown',e=>{
   if(e.pointerType!=='mouse'||!active()||!gameplayTarget(e.target)||![0,2].includes(e.button))return;

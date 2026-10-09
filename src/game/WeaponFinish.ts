@@ -3,7 +3,7 @@ import * as T from 'three';
 type Finish='shell'|'metal'|'rubber';
 type Maps={color:T.CanvasTexture;normal:T.CanvasTexture;rough:T.CanvasTexture;metal:T.CanvasTexture;ao:T.CanvasTexture};
 const finishes=new Map<Finish,Maps>();
-function texture(canvas:HTMLCanvasElement,color=false){const t=new T.CanvasTexture(canvas);t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=4;if(color)t.colorSpace=T.SRGBColorSpace;return t;}
+function texture(canvas:HTMLCanvasElement,color=false){const t=new T.CanvasTexture(canvas);t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=4;t.userData.sharedSurface=true;if(color)t.colorSpace=T.SRGBColorSpace;return t;}
 /** Small original surface sheets shared by every first-person toy weapon. */
 function finishMaps(kind:Finish){if(finishes.has(kind))return finishes.get(kind)!;const size=256,a=document.createElement('canvas');a.width=a.height=size;const c=a.getContext('2d')!,height=new Float32Array(size*size),rough=document.createElement('canvas'),metal=document.createElement('canvas'),ao=document.createElement('canvas'),normal=document.createElement('canvas');for(const b of [rough,metal,ao,normal])b.width=b.height=size;
  const pixels=c.createImageData(size,size),r=rough.getContext('2d')!.createImageData(size,size),m=metal.getContext('2d')!.createImageData(size,size),oc=ao.getContext('2d')!.createImageData(size,size);let seed=173;

@@ -1,3 +1,4 @@
+import {decorateNightmareWeapon} from './NightmareWeaponModel';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import * as T from 'three';
@@ -17,7 +18,7 @@ function buildKatana(g:T.Group,cursed=false){const metal=weaponFinish(cursed?0xc
  part(sword,new T.CapsuleGeometry(.058,.3,6,14),rubber,0,-.28,0);for(let n=0;n<8;n++){const wrap=part(sword,new T.TorusGeometry(.06,.009,5,14),n%2?rubber:gold,0,-.47+n*.047,0);wrap.rotation.set(Math.PI/2,0,n%2?.12:-.12);}part(sword,new T.CylinderGeometry(.069,.062,.06,16),gold,0,-.51,0);part(sword,new T.CylinderGeometry(.073,.073,.04,16),gold,0,-.035,0);const guard=part(sword,new T.CylinderGeometry(.18,.18,.034,32),gold,0,-.075,0);for(let n=0;n<8;n++){const a=n*Math.PI/4;const inset=part(sword,new T.SphereGeometry(.019,8,6),n%2?edge:dark,Math.sin(a)*.133,-.05,Math.cos(a)*.133);inset.scale.y=.45;}const guardRim=part(sword,new T.TorusGeometry(.182,.008,6,32),dark,0,-.075,0);guardRim.rotation.x=Math.PI/2;guard.receiveShadow=true;batch(sword);if(cursed)g.userData.murasameMist=addMurasameMist(sword);
 }
 /** First-person models retain the original barrel/coil silhouette and weapon scale. */
-export function buildBlaster(g:T.Group,weapon=0,upgrade=0){disposeModel(g);if(weapon===3){buildKatana(g,upgrade>0);return;}
+export function buildBlaster(g:T.Group,weapon=0,upgrade=0){if(weapon>=4){buildBlaster(g,[0,1,2][weapon-4],1);decorateNightmareWeapon(g,weapon);return;}disposeModel(g);if(weapon===3){buildKatana(g,upgrade>0);return;}
  const tint=[0x57ded4,0x8ad8ff,0x66dcff][weapon],body=weaponFinish(weapon===2?0x175a75:weapon===1?0x74b7c9:0x61a5cf),metal=weaponFinish(upgrade?0xffd995:0xd9c5a2,'metal'),steel=weaponFinish(0x87aabc,'metal'),dark=weaponFinish(0x263b4c,'metal'),rubber=weaponFinish(0x263747,'rubber'),white=weaponFinish(0xeff8ee),lamp=weaponGlow(tint),goldLamp=weaponGlow(0xffd783),staticParts=new T.Group(),moving=new T.Group();g.add(staticParts,moving);
  const center=.42,radius=weapon===1?.22:.13;
  const receiver=part(staticParts,weapon===0?new T.CylinderGeometry(.15,.2,.34,32):rounded(weapon===1?.39:.32,.27,.4,.045),body,center,-.32,weapon===0?-.58:-.55);receiver.rotation.x=weapon===0?Math.PI/2:.025;
