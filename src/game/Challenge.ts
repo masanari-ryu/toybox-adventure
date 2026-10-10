@@ -1,3 +1,5 @@
+import {nightmareLoot} from './LootSettings';
+import {nightmareReplacement} from './WeaponSettings';
 import {spawnRoom,nightmareRoomCap} from './NightmareRooms';
 import type {Stage} from '../stages/Stages';
 import {makeLayout} from '../stages/Stages';
@@ -60,7 +62,7 @@ export function challengeSpawns(stage:Stage,level:number):Stage['enemies']{
 }
 /** Scale supplies only; keys, batteries and weapon rewards stay unique. */
 export function challengeItems(stage:Stage,level:number):Stage['items']{
- if(level>=2)return stage.items.filter(([kind])=>!consumableKinds.has(kind)).map(i=>[...i] as Stage['items'][number]);
+ if(level>=2)return stage.items.filter(([kind])=>!consumableKinds.has(kind)).map(([kind,x,z,color])=>[level===3?nightmareReplacement[kind]??kind:kind,x,z,color]);
  const multiplier=[1,1.5,2,2][level],supplies=new Set(['POTION','BIG POTION','ANTIDOTE','LAVA CHARM','ARMOR CELL','AMMO CELL','CANDY','RAINBOW']);
  const base=stage.items.filter(([kind])=>supplies.has(kind)),result=stage.items.map(i=>[...i] as Stage['items'][number]),layout=makeLayout(stage);
  const safe=(x:number,z:number)=>layout[Math.floor(z/4)]?.[Math.floor(x/4)]==='.';
@@ -82,7 +84,7 @@ export const consumableKinds=new Set(['POTION','BIG POTION','ANTIDOTE','LAVA CHA
 /** A deterministic budget guarantees twice the easy supplies after all regular enemies are defeated. */
 export function enemySupplyDrops(stage:Stage,level:number,defeated:number,total:number):Stage['items']{
  if(level<2||total<1||defeated<1||defeated>total)return [];
- const supplies=stage.items.filter(([kind])=>consumableKinds.has(kind)),budget=supplies.length*2;
+ const supplies=stage.items.filter(([kind])=>consumableKinds.has(kind)),budget=level===3?Math.round(supplies.length*2*nightmareLoot.amount):supplies.length*2;
  const start=Math.floor(budget*(defeated-1)/total),end=Math.floor(budget*defeated/total);
- return Array.from({length:Math.max(0,end-start)},(_,i)=>[...supplies[(start+i)%supplies.length]] as Stage['items'][number]);
+ return Array.from({length:Math.max(0,end-start)},(_,i)=>{const n=start+i;if(level!==3)return [...supplies[n%supplies.length]] as Stage['items'][number];const quota=Math.min(budget,Math.max(Math.round(budget*(stage.pools.length?nightmareLoot.toxicAntidoteShare:nightmareLoot.otherAntidoteShare)),Math.ceil(supplies.filter(([k])=>k==='ANTIDOTE').length*2*nightmareLoot.antidoteBoost))),antidote=Math.floor((n+1)*quota/budget)>Math.floor(n*quota/budget);const rest=supplies.filter(([kind])=>kind!=='ANTIDOTE');return antidote?['ANTIDOTE',0,0,0x82efb4]:[...(rest.length?rest:supplies)[n%(rest.length||supplies.length)]] as Stage['items'][number];});
 }

@@ -5,7 +5,7 @@ import {Supplies} from '../src/game/Supplies';
 function fixture(){const values=new Map<string,string>(),store={getItem:(k:string)=>values.get(k)??null,setItem:(k:string,v:string)=>{values.set(k,v);}},arsenal=new Arsenal(),supplies=new Supplies();arsenal.unlock(2);arsenal.unlock(3);arsenal.upgrade(2);supplies.potions=7;supplies.bigPotions=4;supplies.antidotes=2;supplies.armor=43.5;return {values,store,arsenal,supplies};}
 it('persists the completed hard weapons, upgrades and remaining supplies across sessions',()=>{
  const f=fixture();new ClearLoadout(f.store).save(2,f.arsenal,f.supplies);f.arsenal.reset();f.supplies.reset();
- const saved=new ClearLoadout(f.store);expect(saved.restore(3,f.arsenal,f.supplies)).toBe(true);expect(f.arsenal.choices()).toEqual([2,3]);expect(f.arsenal.levels[2]).toBe(1);expect(f.supplies).toMatchObject({potions:7,bigPotions:4,antidotes:2,armor:43.5});
+ const saved=new ClearLoadout(f.store);expect(saved.restore(3,f.arsenal,f.supplies)).toBe(true);expect(f.arsenal.choices()).toEqual([4,6,3]);expect(f.arsenal.levels[2]).toBe(1);expect(f.supplies).toMatchObject({potions:7,bigPotions:4,antidotes:2,armor:43.5});
  f.supplies.potions=0;f.arsenal.reset();expect(saved.restore(2,f.arsenal,f.supplies)).toBe(true);expect(f.supplies.potions).toBe(7);
 });
 it('never restores easy or normal and never replaces the hard reward on other clears',()=>{

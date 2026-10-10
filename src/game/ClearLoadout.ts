@@ -21,6 +21,7 @@ export class ClearLoadout {
   if(!saved){try{saved=this.valid(JSON.parse(this.store?.getItem(clearLoadoutKey)??'null'));}catch{return false;}}
   if(!saved)return false;
   arsenal.justAcquired=undefined;arsenal.nightmareWeapons.clear();arsenal.murasame=saved.murasame??false;arsenal.unlocked=[...saved.unlocked];arsenal.levels=[...saved.levels];
+  if(challenge===3)arsenal.activateNightmare();else arsenal.nightmareOnly=false;
   supplies.elixirs=saved.elixirs??0;supplies.parupuns=saved.parupuns??0;supplies.potions=Math.max(supplies.potions,saved.potions);supplies.bigPotions=saved.bigPotions;supplies.antidotes=saved.antidotes;supplies.armor=saved.armor;
   return true;
  }

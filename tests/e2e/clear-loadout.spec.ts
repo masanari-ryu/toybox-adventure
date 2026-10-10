@@ -7,10 +7,10 @@ for(const touch of [false,true])test(`hard clear carryover ${touch?'tablet':'PC'
  await expect(page.locator('#challenge-options button').filter({hasText:'あくむ'})).toBeVisible();
  await page.locator('#challenge-options button').filter({hasText:'あくむ'}).click();await page.locator('#start').click();await page.locator('#card-close').click();
  const equipment=(g:any)=>({choices:g.arsenal.choices(),level:g.arsenal.levels[2],weapon:g.input.weapon,potions:g.supplies.potions,big:g.supplies.bigPotions,antidotes:g.supplies.antidotes,armor:g.supplies.armor});
- expect(await run(page,equipment)).toEqual({choices:[2,3],level:1,weapon:2,potions:9,big:3,antidotes:5,armor:60});
+ expect(await run(page,equipment)).toEqual({choices:[4,5,6,3],level:1,weapon:6,potions:9,big:3,antidotes:5,armor:60});
  await page.screenshot({path:`screenshots/carryover/${touch?'tablet':'PC'}-nightmare.png`});
  // A fresh browser page must retain the completed equipment, but easy and normal remain fresh.
- await page.reload();await page.locator('#challenge-options button').filter({hasText:'あくむ'}).click();await page.locator('#start').click();await page.locator('#card-close').click();expect(await run(page,equipment)).toEqual({choices:[2,3],level:1,weapon:2,potions:9,big:3,antidotes:5,armor:60});
+ await page.reload();await page.locator('#challenge-options button').filter({hasText:'あくむ'}).click();await page.locator('#start').click();await page.locator('#card-close').click();expect(await run(page,equipment)).toEqual({choices:[4,5,6,3],level:1,weapon:6,potions:9,big:3,antidotes:5,armor:60});
  for(const mode of ['やさしい','ふつう','むずかしい']){
   await page.locator('#pause').click();await page.locator('#title-return').click();await page.locator('#challenge-options button').filter({hasText:mode}).click();await page.locator('#start').click();await page.locator('#card-close').click();
   expect(await run(page,equipment)).toEqual(mode==='むずかしい'?{choices:[2,3],level:1,weapon:2,potions:9,big:3,antidotes:5,armor:60}:{choices:[0],level:0,weapon:0,potions:1,big:0,antidotes:0,armor:0});

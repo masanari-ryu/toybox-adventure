@@ -21,18 +21,19 @@ it('keeps reinforcements separated and the tutorial entrance safe',()=>{
 });
 
 import {challengeItems,enemySupplyDrops,consumableKinds} from '../src/game/Challenge';
-it('moves only hard consumables to guaranteed enemy drops with twice the easy budget',()=>{
+it('retains hard supplies and gives nightmare two-thirds drops with extra antidotes',()=>{
  for(const stage of stages){
   const easy=stage.items.filter(([k])=>consumableKinds.has(k));
   expect(challengeItems(stage,0)).toEqual(stage.items);
   expect(challengeItems(stage,1).filter(([k])=>consumableKinds.has(k))).toHaveLength(Math.ceil(easy.length*1.5));
   for(const level of [2,3]){
-   expect(challengeItems(stage,level)).toEqual(stage.items.filter(([k])=>!consumableKinds.has(k)));
+   expect(challengeItems(stage,level).map(([,x,z])=>[x,z])).toEqual(stage.items.filter(([k])=>!consumableKinds.has(k)).map(([,x,z])=>[x,z]));
    const total=challengeSpawns(stage,level).filter(([k])=>!['KING PUNI','SAMURAI'].includes(k)).length;
    const drops=Array.from({length:total},(_,i)=>enemySupplyDrops(stage,level,i+1,total)).flat();
-   expect(drops).toHaveLength(easy.length*2);
+   expect(drops).toHaveLength(level===3?Math.round(easy.length*2*2/3):easy.length*2);
    for(const [kind]of drops)expect(consumableKinds.has(kind)).toBe(true);
-   for(const [kind]of easy)expect(drops.filter(([k])=>k===kind)).toHaveLength(easy.filter(([k])=>k===kind).length*2);
+   if(level===3)expect(drops.filter(([k])=>k==='ANTIDOTE').length).toBeGreaterThanOrEqual(Math.round(drops.length*(stage.pools.length?.28:.18)));
+   if(level===2)for(const [kind]of easy)expect(drops.filter(([k])=>k===kind)).toHaveLength(easy.filter(([k])=>k===kind).length*2);
   }
   expect(enemySupplyDrops(stage,0,1,10)).toEqual([]);
  }

@@ -6,7 +6,7 @@ import {beamDistance} from './Thunderbolt';
 import {mesh} from '../world/World';
 import {sightAt,wallAt} from '../world/layout';
 function center(e:Game['enemies'][number]){return e.group.position.clone().add(new T.Vector3(0,e.kind==='KING PUNI'?2.2*e.baseScale:e.baseScale,0));}
-function attackable(g:Game,e:Game['enemies'][number]){return e.alive&&(e.kind!=='KING PUNI'||g.gate)&&(e.kind!=='SAMURAI'||e.alert);}
+function attackable(g:Game,e:Game['enemies'][number]){return e.alive&&!e.group.userData?.bossHidden&&(e.kind!=='KING PUNI'||g.gate)&&(e.kind!=='SAMURAI'||e.alert);}
 /** Fast weapons cannot repeatedly postpone an already-alert elite's attack schedule. */
 export function applySpecialHit(g:Game,e:Game['enemies'][number],damage:number,weapon:number){
  const elite=e.kind==='KING PUNI'||e.kind==='SAMURAI',saved=elite&&e.alert?{cooldown:e.cooldown,surprise:e.brain.surprisedUntil}:undefined;

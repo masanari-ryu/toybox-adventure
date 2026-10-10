@@ -17,7 +17,7 @@ export class NightmareReinforcements{
  reset(g:Game){this.cancel(g);this.rooms.clear();this.initialized=false;this.nextAt=nightmareWaveInterval;this.cycle=0;}
  private cancel(g:Game){if(this.pending)for(const s of this.pending.spawns)g.dispose(s.marker);this.pending=null;}
  private initialize(g:Game){
-  for(const e of g.enemies){const room=nightmareRoom(g.stageIndex,e.home.x,e.home.z,e.floorY);let state=this.rooms.get(room);if(!state){state={actors:[],wave:1,limit:3,cleared:false,nextAt:g.stageTime+nightmareWaveInterval,initial:0,emitted:0};this.rooms.set(room,state);}if(e.kind==='KING PUNI'){state.elite=e;state.limit=1;}else if(e.kind==='SAMURAI')state.elite=e;else{state.actors.push(e);e.group.userData.waveRoom=room;}}
+  for(const e of g.enemies){if(e.group.userData.bossClone)continue;const room=nightmareRoom(g.stageIndex,e.home.x,e.home.z,e.floorY);let state=this.rooms.get(room);if(!state){state={actors:[],wave:1,limit:3,cleared:false,nextAt:g.stageTime+nightmareWaveInterval,initial:0,emitted:0};this.rooms.set(room,state);}if(e.kind==='KING PUNI'){state.elite=e;state.limit=1;}else if(e.kind==='SAMURAI')state.elite=e;else{state.actors.push(e);e.group.userData.waveRoom=room;}}
   for(const state of this.rooms.values())state.initial=state.actors.length;this.initialized=true;
  }
  private safe(g:Game,x:number,z:number,floor:number,room:string){

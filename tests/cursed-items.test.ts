@@ -25,10 +25,10 @@ describe('nightmare health and rare loot',()=>{
  it('gives room wipe half the probability and divides the rest evenly',()=>{const samples=Array.from({length:1600},(_,n)=>randomOutcome((n+.5)/1600));expect(samples.filter(s=>s==='room')).toHaveLength(800);for(const outcome of parupunOutcomes.slice(1))expect(samples.filter(s=>s===outcome)).toHaveLength(100);});
  it('uses exactly two upgraded thunder hits for all ordinary species, twenty for samurai',()=>{
   for(const kind of ['PUNI','BOTTY','BALLOONER','TOX MUNCHER','LAVA HOPPER','INFANTRY'])expect(nightmareHealth(kind,3,100)).toBe(referenceThunderDamage*2);
-  expect(nightmareHealth('SAMURAI',3,1800)).toBe(referenceThunderDamage*20);expect(nightmareHealth('KING PUNI',3,5600,2)).toBe(5700);
+  expect(nightmareHealth('SAMURAI',3,1800)).toBe(referenceThunderDamage*20);expect(nightmareHealth('KING PUNI',3,5600,2)).toBe(8550);
   for(const mode of [0,1,2])expect(nightmareHealth('PUNI',mode,120)).toBe(120);
  });
- it('drops rare items only on hard and nightmare, with distinct rare ranges',()=>{for(const mode of [0,1])expect(rareDrop(mode,0)).toBeUndefined();for(const mode of [2,3]){expect(rareDrop(mode,.014)).toBe('ELIXIR');expect(rareDrop(mode,.015)).toBe('PARUPUN');expect(rareDrop(mode,.03)).toBeUndefined();}expect(randomOutcome(.499999)).toBe('room');expect(parupunOutcomes.slice(1).map((_,n)=>randomOutcome(.5+(n+.5)/16))).toEqual(parupunOutcomes.slice(1));});
+ it('drops rare items only on hard and nightmare, with distinct rare ranges',()=>{for(const mode of [0,1])expect(rareDrop(mode,0)).toBeUndefined();for(const mode of [2,3]){expect(rareDrop(mode,mode===3?.009:.014)).toBe('ELIXIR');expect(rareDrop(mode,mode===3?.01:.015)).toBe('PARUPUN');expect(rareDrop(mode,.03)).toBeUndefined();}expect(randomOutcome(.499999)).toBe('room');expect(parupunOutcomes.slice(1).map((_,n)=>randomOutcome(.5+(n+.5)/16))).toEqual(parupunOutcomes.slice(1));});
  it('requires two actual upgraded beams for every nightmare ordinary species',()=>{
   for(const kind of ['PUNI','BOTTY','BALLOONER','TOX MUNCHER','LAVA HOPPER','INFANTRY']){
    const g=fixture(),target=enemy(kind,26,34,nightmareHealth(kind,3,100));g.enemies=[target] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};
@@ -36,9 +36,9 @@ describe('nightmare health and rare loot',()=>{
   }
  });
  it('requires ten, fifteen and twenty actual upgraded beams for the three nightmare bosses',()=>{
-  for(const [stage,count] of [10,15,20].entries()){
-   const g=fixture(),boss=enemy('KING PUNI',26,34,nightmareHealth('KING PUNI',3,420,stage));g.enemies=[boss] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};g.position.y=2.2;
-   const direction=new T.Vector3(0,0,-1);for(let n=1;n<count;n++)thunderbolt(g,direction);expect(boss.hp).toBe(285);expect(boss.alive).toBe(true);thunderbolt(g,direction);expect(boss.alive).toBe(false);expect(boss.hp).toBe(0);
+  for(const [stage,oldCount] of [10,15,20].entries()){
+   const count=Math.ceil(oldCount*1.5),initial=nightmareHealth('KING PUNI',3,420,stage),g=fixture(),boss=enemy('KING PUNI',26,34,initial);g.enemies=[boss] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};g.position.y=2.2;
+   const direction=new T.Vector3(0,0,-1);for(let n=1;n<count;n++)thunderbolt(g,direction);expect(boss.hp).toBe(initial-(count-1)*285);expect(boss.alive).toBe(true);thunderbolt(g,direction);expect(boss.alive).toBe(false);expect(boss.hp).toBeLessThanOrEqual(0);
   }
  });
 });
@@ -69,6 +69,6 @@ describe('rare consumables cannot softlock progress',()=>{
 });
 it('restores rare inventory and accepts older saves without new fields',()=>{
  const values=new Map<string,string>(),store={getItem:(k:string)=>values.get(k)??null,setItem:(k:string,v:string)=>{values.set(k,v);}},g=fixture();g.supplies.elixirs=2;g.supplies.parupuns=3;new ClearLoadout(store).save(2,g.arsenal,g.supplies);const a=new Arsenal(),s=new Supplies();expect(new ClearLoadout(store).restore(3,a,s)).toBe(true);expect(a.murasame).toBe(true);expect(s.elixirs).toBe(2);expect(s.parupuns).toBe(3);
- const old=JSON.parse(values.get(clearLoadoutKey)!);delete old.murasame;delete old.elixirs;delete old.parupuns;values.set(clearLoadoutKey,JSON.stringify(old));expect(new ClearLoadout(store).restore(3,a,s)).toBe(true);expect(a.murasame).toBe(false);expect(s.elixirs+s.parupuns).toBe(0);
+ const old=JSON.parse(values.get(clearLoadoutKey)!);delete old.murasame;delete old.elixirs;delete old.parupuns;values.set(clearLoadoutKey,JSON.stringify(old));expect(new ClearLoadout(store).restore(3,a,s)).toBe(true);expect(a.murasame).toBe(true);expect(s.elixirs+s.parupuns).toBe(0);
 });
 it('uses kana-only labels and explains the cursed weapon cost',()=>{for(const text of [...Object.values(names),...Object.values(itemInfo).flatMap(i=>[i.effect,i.use])])expect(visibleTextValid(text)).toBe(true);expect(itemInfo.MURASAME.use).toContain('たいりょくを 1');});

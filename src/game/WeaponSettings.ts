@@ -12,9 +12,5 @@ export const pickupWeaponIndex:Record<string,number>={...nightmareWeaponIndex,'B
 export function weaponCooldown(index:number,level=0){return index===4?nightmareWeapons.rifle.cooldown:index===5?nightmareWeapons.cannon.cooldown:index===6?nightmareWeapons.thunder.cooldown:index===3?.48:[.19,.65,.48][index]*(level?.75:1);}
 export function weaponEnergy(index:number){return index===6?nightmareWeapons.thunder.energy:index===2?12:0;}
 export function specialDamage(kind:string,regular:number,boss:number,power=1){return (kind==='KING PUNI'||kind==='SAMURAI'?boss*bossDamageMultiplier:regular)*power;}
-/** Stage progression (three adventures), placed on accessible approach paths before combat. */
-export const nightmareWeaponPickups:[string,number,number,number][][]=[
- [['ASSAULT RIFLE',14,42,0xa4f49c]],
- [['CANNON',18,58,0xffb768]],
- [['THUNDER PLUS',18,78,0x9fe7ff]],
-];
+/** Replace old pickup types in-place; do not add separate early weapon rewards. */
+export const nightmareReplacement:Record<string,string>={'BUBBLE MODULE':'CANNON','BUBBLE UPGRADE':'CANNON','STAR MODULE':'THUNDER PLUS','NOVA UPGRADE':'THUNDER PLUS','POP UPGRADE':'ASSAULT RIFLE',KATANA:'MURASAME'};

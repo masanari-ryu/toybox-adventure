@@ -22,7 +22,7 @@ export function enteredMajorRoom(stageIndex:number,kind:MajorKind,x:number,z:num
 export function majorHealthTarget(g:Game){
  if(g.practice||g.ride)return undefined;
  for(const kind of ['SAMURAI','KING PUNI']as const){
-  const e=g.enemies.find(e=>e.kind===kind&&e.alive);if(!e)continue;
+  const e=g.enemies.find(e=>e.kind===kind&&e.alive&&!e.group.userData?.bossClone);if(!e)continue;
   const unlocked=kind==='SAMURAI'?!!doors[5]?.open:g.gate;
   if(!unlocked)continue;
   if(enteredMajorRoom(g.stageIndex,kind,g.position.x,g.position.z,g.position.y-1.65))e.encountered=true;
