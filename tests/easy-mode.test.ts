@@ -1,0 +1,15 @@
+import {it,expect}from 'vitest';
+import * as T from 'three';
+import {Brain}from '../src/ai/Brain';
+import type {Game}from '../src/game/Game';
+import type {Enemy}from '../src/game/Enemy';
+import {beginEasyOpening,easyDormant,wakeEasyEnemy,easySettings,easyAttackers,easyBodySpace,separateEasyEnemy}from '../src/game/EasyMode';
+import {Supplies}from '../src/game/Supplies';
+import {configureStage,canMoveAt}from '../src/world/layout';
+function enemy(x:number,z:number,kind='PUNI'){const e={kind,group:new T.Group(),brain:new Brain(),home:{x,z},floorY:0,alive:true,cooldown:0,radius:.85,baseScale:1.05}as Enemy;e.group.position.set(x,0,z);e.brain.state='Chase';return e;}
+function fixture(challenge=0){configureStage(0);return {challenge,stageIndex:0,stageTime:0,position:new T.Vector3(26,1.65,30),enemies:[enemy(26,27),enemy(24,30),enemy(28,30),enemy(26,22,'KING PUNI')],gate:true}as Game;}
+it('easy opening hides and suspends regular enemies for four seconds without removing them',()=>{const g=fixture();beginEasyOpening(g);expect(g.enemies.slice(0,3).every(e=>easyDormant(e)&&!e.group.visible&&e.alive)).toBe(true);expect(easyDormant(g.enemies[3])).toBe(false);g.stageTime=3.99;expect(wakeEasyEnemy(g,g.enemies[0])).toBe(false);g.stageTime=4;expect(wakeEasyEnemy(g,g.enemies[0])).toBe(true);expect(g.enemies[0].group.visible).toBe(true);expect(g.enemies[0].cooldown).toBeGreaterThanOrEqual(1.5);});
+it('does not apply opening changes to other modes, later stages or practice',()=>{for(const challenge of [1,2,3]){const g=fixture(challenge);beginEasyOpening(g);expect(g.enemies.every(e=>!easyDormant(e)&&e.group.visible)).toBe(true);}const g=fixture();g.stageIndex=1;beginEasyOpening(g);expect(g.enemies.every(e=>!easyDormant(e))).toBe(true);});
+it('easy limits attackers but includes a released boss and lets everyone else keep approaching',()=>{const g=fixture(),a=easyAttackers(g);expect(a.size).toBe(2);expect(a.has(g.enemies[3])).toBe(true);expect(g.enemies.every(e=>e.alive)).toBe(true);beginEasyOpening(g);expect([...easyAttackers(g)].every(e=>!easyDormant(e))).toBe(true);});
+it('body separation keeps large easy enemies away from the camera without shrinking their model or blocking melee',()=>{const g=fixture(),e=g.enemies[1],size=e.baseScale;for(let n=0;n<60;n++)separateEasyEnemy(g,e,1/60,(x,z)=>canMoveAt(x,z,1.65,true));expect(e.group.position.distanceTo(new T.Vector3(26,0,30))).toBeCloseTo(easyBodySpace(e));expect(e.baseScale).toBe(size);const before=e.group.position.clone();g.challenge=1;separateEasyEnemy(g,e,1,()=>true);expect(e.group.position.equals(before)).toBe(true);});
+it('normal healing is really thirty points; easy healing gains forty and stays capped at one hundred',()=>{const s=new Supplies();s.potions=3;expect(s.heal(35)).toBe(65);expect(s.heal(35,easySettings.potion,easySettings.bigPotion)).toBe(75);expect(s.heal(90,easySettings.potion,easySettings.bigPotion)).toBe(100);s.bigPotions=1;expect(s.heal(10,easySettings.potion,easySettings.bigPotion)).toBe(90);expect(s.bigPotions).toBe(0);});

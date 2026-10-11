@@ -2,7 +2,7 @@ import {prepareBossAdds,tickBossAdds} from './BossAdds';
 import * as T from 'three';
 import type {Game}from '../Game';import type {Enemy}from '../Enemy';
 import {bossState,type BossState,type BossAction}from './BossState';import {bossSettings as c,bossSecondForm,rulerAttack}from './BossSettings';
-import {bossCanMove,bossPositions,bossWalk,safeBossDestination}from './BossSpace';import {bossVolley}from './BossProjectiles';import {createIllusions,tickIllusions,destroyIllusion}from './BossIllusions';import {prepareBossAppearance,floorTell,clearTell,stunnedStars,bossPose}from './BossVisuals';import {sightAt}from '../../world/layout';
+import {bossCanMove,bossClearPath,bossPositions,bossWalk,safeBossDestination}from './BossSpace';import {bossVolley}from './BossProjectiles';import {createIllusions,tickIllusions,destroyIllusion}from './BossIllusions';import {prepareBossAppearance,floorTell,clearTell,stunnedStars,bossPose}from './BossVisuals';import {sightAt}from '../../world/layout';import {enteredMajorRoom}from '../../ui/MajorEnemyHealth';import {doors}from '../../world/Threats';
 export {destroyIllusion};
 function recover(g:Game,e:Enemy,s:BossState,seconds:number){clearTell(g,s);s.mode='Recovery';s.until=g.time+seconds;e.telegraph=0;e.dashUntil=0;e.group.userData.bossHidden=false;e.body.visible=true;}
 function windup(g:Game,e:Enemy,s:BossState,action:BossAction){s.mode='Windup';s.action=action;s.hit=false;s.aim={x:g.position.x,y:g.position.y,z:g.position.z};s.until=g.time+c.windup[g.challenge]*(action==='slam'?1.2:1);e.telegraph=s.until;e.group.rotation.y=Math.atan2(e.group.position.x-s.aim.x,e.group.position.z-s.aim.z);
@@ -40,7 +40,8 @@ export function updateBoss(g:Game,e:Enemy,dt:number,visible:boolean,allowed=true
   if(blocked||g.time>=s.until){e.dashUntil=0;if(g.stageIndex===0&&s.nightmare&&s.second&&s.chain===0&&e.group.userData.bossDouble!==e.attackCycle){s.chain=1;e.group.userData.bossDouble=e.attackCycle+1;}recover(g,e,s,c.recovery[g.challenge]);}return;
  }
  const distance=Math.hypot(g.position.x-e.group.position.x,g.position.z-e.group.position.z),range=e.radius*e.baseScale+3.2;
- if(!visible){bossWalk(g,e,e.brain.last,dt,3.5*c.speed[g.challenge]);return;}if(!allowed)return;
+ const leavingRoom=g.stageIndex<2&&(enteredMajorRoom(g.stageIndex,'KING PUNI',e.group.position.x,e.group.position.z,e.floorY)||doors.some(d=>d.open&&d.cells.some(([x,z])=>Math.floor(e.group.position.x/4)===x&&Math.floor(e.group.position.z/4)===z)))&&!enteredMajorRoom(g.stageIndex,'KING PUNI',g.position.x,g.position.z,g.position.y-1.65);
+ if(!visible||leavingRoom||!bossClearPath(g,e,e.group.position,g.position)){bossWalk(g,e,visible?g.position:e.brain.last,dt,3.5*c.speed[g.challenge]);return;}if(!allowed)return;
  if(g.stageIndex===0){const decision=e.group.userData.chargerDecision??0,action=decision%2?'slam':'charge';if(action==='slam'&&distance>c.charger.slamRadius+6){e.group.userData.chargerDecision=decision+1;windup(g,e,s,'charge');return;}if(action==='slam'&&distance>c.charger.slamRadius-1){bossWalk(g,e,g.position,dt,4.5*c.speed[g.challenge]*(s.second?1.2:1));return;}e.group.userData.chargerDecision=decision+1;windup(g,e,s,action);}
  else if(g.stageIndex===1){if(g.time>=s.nextIllusion&&!s.cloneActive&&e.attackCycle%3===1)windup(g,e,s,'illusion');else if(g.time>=s.nextWarp&&e.attackCycle%3===2)windup(g,e,s,'warp');else{if(distance<range-1)bossWalk(g,e,g.position,dt,3,true);windup(g,e,s,'magic');}}
  else{const action=s.second&&s.nightmare&&g.input.weapon===5&&distance>=c.ruler.far&&e.attackCycle%3===1?'advance':rulerAttack(distance,s.second,s.nightmare,e.attackCycle);if(distance<range-1&&action!=='slash')bossWalk(g,e,g.position,dt,3,true);windup(g,e,s,action);}

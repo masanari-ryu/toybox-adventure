@@ -70,3 +70,30 @@
 body:not(.touch) #scene{cursor:crosshair}
 
 #intro-link{display:none;min-height:44px;padding:8px 12px;align-items:center;align-self:flex-start;font-size:14px;line-height:1.4;color:#d0ffe6;text-underline-offset:4px;touch-action:manipulation;border-radius:10px}#intro-link:focus-visible{outline:3px solid #fff5a2;outline-offset:2px}#overlay:has(#challenge:not([hidden])) #intro-link{display:inline-flex}
+
+/* The mini map is read-only: scene input passes through it, including a second finger. */
+#mapbutton{pointer-events:none}
+#pause-details{display:flex;gap:18px;align-items:center;width:min(940px,100%);min-width:0;margin:12px 0}
+#pause-map{flex:1 1 50%;min-width:0;background:#16374de8;border:1px solid #a8ffe7aa;border-radius:18px;padding:16px}
+#pause-map span{font-size:15px}#large-map{display:block;width:100%;height:auto}
+#pause-details #pause-controls{flex:1 1 50%;min-width:0;margin:0}
+#overlay:has(#pause-controls:not([hidden])){justify-content:safe center;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+#overlay:has(#pause-controls:not([hidden])) #description{margin:0;font-size:14px}
+@media(max-height:500px){#pause-details{gap:12px;margin:6px 0}#pause-map{padding:10px;flex-basis:43%}#large-map{max-height:32dvh;object-fit:contain}#pause-details #pause-controls{font-size:11px;line-height:1.4;padding:10px}#overlay:has(#pause-controls:not([hidden])) #title-return{padding:8px 18px;font-size:16px;margin:4px}#overlay:has(#pause-controls:not([hidden])) #restart,#overlay:has(#pause-controls:not([hidden])) #start{min-height:44px;padding:8px 18px;margin:4px}}
+@media(max-width:600px) and (orientation:portrait){#pause-details{flex-direction:column;align-items:stretch}}
+
+#heal-feedback{display:block;font-size:13px;font-weight:800;color:#baffd8;margin:2px 0 4px;line-height:1.1}
+/* Short touch screens reserve the center for the action; interactive targets remain 48px. */
+@media(orientation:landscape) and (max-height:620px){
+ .touch #hud{padding:10px max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left))}
+ .touch .health{width:86px;padding:6px 9px;border-radius:14px}.touch .health b{font-size:23px}.touch .health small{font-size:9px}.touch .top{gap:12px}
+ .touch .mission b{font-size:11px;max-width:240px}.touch .mission small{font-size:10px}.touch .mission span{font-size:17px}
+ .touch #mapbutton:not(.expanded){width:88px;right:max(12px,env(safe-area-inset-right));top:68px;padding:5px;border-radius:13px;backdrop-filter:none}.touch #mapbutton span{font-size:9px}
+ .touch #weapon{min-width:0;width:118px;min-height:76px;padding:8px 10px;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));border-radius:14px;gap:4px}.touch #weaponname{font-size:11px;line-height:1.25}.touch #shot-status{font-size:9px!important}.touch #energy{font-size:10px}.touch .weapon-meter{height:5px;margin-top:0}
+ .touch #practice-hud{left:max(12px,env(safe-area-inset-left));top:94px;bottom:auto;transform:none;width:210px;max-width:34vw;text-align:left;padding:8px 10px;border-radius:14px;pointer-events:none}
+ .touch #practice-hud p{font-size:10px;line-height:1.4;margin:4px 0}.touch #practice-hud b{font-size:10px}.touch #practice-hud button{display:none}
+ .touch #practice-hud.practice-complete{max-width:34vw}.touch #practice-hud.practice-complete button{display:inline-block;min-height:48px;font-size:12px;padding:8px 10px;margin:2px}
+ body.touch.practicing #mapbutton{display:none}
+}
+
+@media(orientation:landscape) and (max-height:620px){.touch #practice-hud #practice-exit{display:inline-block;min-height:48px;font-size:11px;padding:8px 10px;margin:2px}}

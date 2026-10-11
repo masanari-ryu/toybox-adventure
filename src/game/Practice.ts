@@ -2,7 +2,7 @@ import * as T from 'three';
 import type {Game} from './Game';
 import {World,mesh} from '../world/World';
 import {configureStage} from '../world/layout';
-import {practiceStage,practiceLessons} from '../stages/PracticeStage';
+import {practiceStage,practiceLessons,practiceHints} from '../stages/PracticeStage';
 import {Enemy} from './Enemy';
 import {movePlayer} from './Player';
 import {fire,updateShots,updateEnemies} from './Combat';
@@ -22,6 +22,6 @@ export class Practice{
  for(const s of g.shots)if(s.enemy&&s.kind===0&&s.m.position.z>g.position.z+1){s.kind=99;this.dodged++;if(this.dodged>=3)this.complete();}}
  if(g.time>g.toastTime)el('toast').textContent='';g.fog.reveal(g.position.x,g.position.z);g.drawMap();}
  private complete(){this.done=true;el('practice-next').hidden=false;el('practice-next').textContent=this.lesson===4?'ほんぺんへ':'つぎの れんしゅう';this.g.notify('できた！ とても じょうず！');this.hud();}
- private hud(){el('area').textContent='れんしゅうじょう';el('objective').textContent=practiceLessons[this.lesson].name;el('practice-instruction').textContent=this.done?'できた！ つぎへ すすもう':(this.g.input.touch?practiceLessons[this.lesson].text:practiceLessons[this.lesson].pc);el('practice-progress').textContent=`${this.lesson+1} / 5${this.lesson===3?` · ${this.dodged} / 3`:''}`;}
+ private hud(){el('area').textContent='れんしゅうじょう';el('objective').textContent=practiceLessons[this.lesson].name;el('practice-hud').classList.toggle('practice-complete',this.done);el('practice-instruction').textContent=this.done?'できた！ つぎへ すすもう':(this.g.input.touch?practiceHints[this.lesson]:practiceLessons[this.lesson].pc);el('practice-progress').textContent=`${this.lesson+1} / 5${this.lesson===3?` · ${this.dodged} / 3`:''}`;}
  stop(){document.body.classList.remove('practicing');el('practice-hud').hidden=true;this.g.practice=undefined;this.g.reset();el('overlay').style.display='flex';el('hud').style.display='none';this.g.sound.music?.setMode('title');document.exitPointerLock?.();}
 }

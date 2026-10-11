@@ -25,7 +25,7 @@ describe('nightmare health and rare loot',()=>{
  it('gives room wipe half the probability and divides the rest evenly',()=>{const samples=Array.from({length:1600},(_,n)=>randomOutcome((n+.5)/1600));expect(samples.filter(s=>s==='room')).toHaveLength(800);for(const outcome of parupunOutcomes.slice(1))expect(samples.filter(s=>s===outcome)).toHaveLength(100);});
  it('uses exactly two upgraded thunder hits for all ordinary species, twenty for samurai',()=>{
   for(const kind of ['PUNI','BOTTY','BALLOONER','TOX MUNCHER','LAVA HOPPER','INFANTRY'])expect(nightmareHealth(kind,3,100)).toBe(referenceThunderDamage*2);
-  expect(nightmareHealth('SAMURAI',3,1800)).toBe(referenceThunderDamage*20);expect(nightmareHealth('KING PUNI',3,5600,2)).toBe(8550);
+  expect(nightmareHealth('SAMURAI',3,1800)).toBe(referenceThunderDamage*20);expect(nightmareHealth('KING PUNI',3,5600,2)).toBe(12825);
   for(const mode of [0,1,2])expect(nightmareHealth('PUNI',mode,120)).toBe(120);
  });
  it('drops rare items only on hard and nightmare, with distinct rare ranges',()=>{for(const mode of [0,1])expect(rareDrop(mode,0)).toBeUndefined();for(const mode of [2,3]){expect(rareDrop(mode,mode===3?.009:.014)).toBe('ELIXIR');expect(rareDrop(mode,mode===3?.01:.015)).toBe('PARUPUN');expect(rareDrop(mode,.03)).toBeUndefined();}expect(randomOutcome(.499999)).toBe('room');expect(parupunOutcomes.slice(1).map((_,n)=>randomOutcome(.5+(n+.5)/16))).toEqual(parupunOutcomes.slice(1));});
@@ -35,9 +35,9 @@ describe('nightmare health and rare loot',()=>{
    const direction=new T.Vector3(0,0,-1);thunderbolt(g,direction);expect(target.hp).toBe(285);expect(target.alive).toBe(true);thunderbolt(g,direction);expect(target.hp).toBe(0);expect(target.alive).toBe(false);
   }
  });
- it('requires ten, fifteen and twenty actual upgraded beams for the three nightmare bosses',()=>{
+ it('requires the configured scaled number of actual upgraded beams for the three nightmare bosses',()=>{
   for(const [stage,oldCount] of [10,15,20].entries()){
-   const count=Math.ceil(oldCount*1.5),initial=nightmareHealth('KING PUNI',3,420,stage),g=fixture(),boss=enemy('KING PUNI',26,34,initial);g.enemies=[boss] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};g.position.y=2.2;
+   const count=Math.ceil(oldCount*2.25),initial=nightmareHealth('KING PUNI',3,420,stage),g=fixture(),boss=enemy('KING PUNI',26,34,initial);g.enemies=[boss] as never;g.arsenal.upgrade(2);g.input.weapon=2;g.lightning={add:vi.fn()} as never;g.sound.thunder=vi.fn();g.damage=(e,n)=>{e.hp-=n;if(e.hp<=0)e.alive=false;};g.position.y=2.2;
    const direction=new T.Vector3(0,0,-1);for(let n=1;n<count;n++)thunderbolt(g,direction);expect(boss.hp).toBe(initial-(count-1)*285);expect(boss.alive).toBe(true);thunderbolt(g,direction);expect(boss.alive).toBe(false);expect(boss.hp).toBeLessThanOrEqual(0);
   }
  });

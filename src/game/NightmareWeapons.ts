@@ -15,9 +15,9 @@ export function applySpecialHit(g:Game,e:Game['enemies'][number],damage:number,w
 export function fireNightmareWeapon(g:Game,direction:T.Vector3){
  const index=g.input.weapon;
  if(index===6){tripleThunder(g,direction);return;}
- const settings=index===4?config.rifle:config.cannon,m=mesh(new T.SphereGeometry(index===4?.11:.32,12,8),index===4?0xc8ff93:0xffb770);const mat=m.material as T.MeshStandardMaterial;mat.emissive.setHex(index===4?0x9fed7c:0xff953d);mat.emissiveIntensity=1;
+ const settings=index===4?config.rifle:config.cannon;for(let n=0;n<(index===4?config.rifle.burst:1);n++){const m=mesh(new T.SphereGeometry(index===4?.11:.32,12,8),index===4?0xc8ff93:0xffb770);const mat=m.material as T.MeshStandardMaterial;mat.emissive.setHex(index===4?0x9fed7c:0xff953d);mat.emissiveIntensity=1;
  // Start inside the camera's collision space so nearby walls also trigger the cannon blast.
- m.position.copy(g.position);g.scene.add(m);g.shots.push({m,v:direction.clone().multiplyScalar(settings.speed),life:settings.range/settings.speed,damage:settings.damage*attackPower(g),bossDamage:settings.bossDamage*attackPower(g),enemy:false,kind:index});g.sound.effect(index===4?780:240);
+ m.position.copy(g.position);g.scene.add(m);g.shots.push({m,v:direction.clone().multiplyScalar(settings.speed),life:settings.range/settings.speed,damage:settings.damage*attackPower(g),bossDamage:settings.bossDamage*attackPower(g),enemy:false,kind:index,...(index===4&&n>0?{delay:config.rifle.shotInterval*n}:{})});m.visible=n===0;if(n===0)g.sound.effect(index===4?780:240);}
 }
 export function cannonSelfDamage(distance:number){return distance>=config.cannon.selfRadius?0:config.cannon.selfDamage*(1-distance/config.cannon.selfRadius);}
 export function cannonExplosion(g:Game,origin:T.Vector3,s:Pick<Shot,'damage'|'bossDamage'>){

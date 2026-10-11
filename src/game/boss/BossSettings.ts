@@ -1,6 +1,6 @@
 /** Boss-only controls; regular actors, weapons and waves use their existing settings. */
 export const bossSettings={
- hpMultiplier:[1,1,1.5,1.5],windup:[1.25,1,.85,.75],recovery:[1.6,1.3,1.1,.95],speed:[.8,1,1.15,1.25],
+ hpMultiplier:[1,1,2.25,2.25],windup:[1.25,1,.85,.75],recovery:[1.6,1.3,1.1,.95],speed:[.8,1,1.15,1.25],
  wallStun:[3.1,2.7,2.3,2.6],nightmareWallStun:3.5,transition:.9,maxProjectiles:24,
  charger:{speed:14,enragedSpeed:18,nightmareSpeed:22,duration:1.1,slamRadius:5.8,enragedRadius:7.2},
  magician:{warpCooldown:7,enragedWarpCooldown:5,warpWarning:1,warpRecovery:1.25,illusionLife:10,illusionCooldown:12,illusionCount:2,nightmareCount:4,cloneDamage:5},

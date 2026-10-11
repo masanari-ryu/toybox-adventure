@@ -1,6 +1,6 @@
 /** Player-side tuning only. Enemy stats, waves and other difficulties remain independent. */
 export const nightmareWeapons={
- rifle:{index:4,kind:'ASSAULT RIFLE',damage:285,bossDamage:45,cooldown:.12,speed:80,range:64,energy:0},
+ rifle:{index:4,kind:'ASSAULT RIFLE',damage:285,bossDamage:45,cooldown:.12,burst:2,shotInterval:.06,speed:80,range:64,energy:0},
  cannon:{index:5,kind:'CANNON',damage:760,bossDamage:285,cooldown:.85,speed:34,range:64,energy:0,radius:6,selfDamage:28,selfRadius:4},
  thunder:{index:6,kind:'THUNDER PLUS',damage:720,bossDamage:285,cooldown:.42,range:52,energy:3,angle:.22},
 }as const;

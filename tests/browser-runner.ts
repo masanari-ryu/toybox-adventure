@@ -1,3 +1,4 @@
+import {easySettings} from '../src/game/EasyMode';
 import {updateBoss} from '../src/game/boss/BossCombat';
 import {bossState} from '../src/game/boss/BossState';
 import {challengeSpawns} from '../src/game/Challenge';
@@ -77,7 +78,7 @@ setTimeout(async()=>{if(qs.has('nopointerlock'))Object.defineProperty(document,'
   g.hurtTime=0;g.hp=100;const bullet=new T.Mesh(new T.SphereGeometry(.2),new T.MeshBasicMaterial());bullet.position.copy(sniperCenter);g.scene.add(bullet);
   g.shots.push({m:bullet,v:g.position.clone().sub(sniperCenter).normalize().multiplyScalar(18),life:4,damage:12,enemy:true,kind:0});
   for(let n=0;n<120;n++)updateShots(g,.016);
-  assert(`${touchAim?'touch':'mouse'} ${upstairs?'ground floor projectile can hit second floor player':'second floor projectile can hit ground floor player'}`,g.hp===88);
+  assert(`${touchAim?'touch':'mouse'} ${upstairs?'ground floor projectile can hit second floor player':'second floor projectile can hit ground floor player'}`,Math.abs(g.hp-(100-12*(g.challenge===0?easySettings.damage:1)))<.001);
  }
  for(const upstairs of [false,true]){
   load(2);g.supplies.reset();g.position.set(48,upstairs?7.65:1.65,38);g.camera.position.copy(g.position);
@@ -91,9 +92,9 @@ setTimeout(async()=>{if(qs.has('nopointerlock'))Object.defineProperty(document,'
   for(let n=0;n<100;n++)updateShots(g,.04);
   assert(`deck blocks enemy shots ${upstairs?'upward':'downward'}`,g.hp===100&&g.shots.length===0);
  }
- g.input.touch=true;load(2);const pursuer=g.enemies.find(e=>e.kind==='PUNI')!;for(const e of g.enemies)if(e!==pursuer)e.alive=false;pursuer.group.position.set(62,6,38);pursuer.floorY=6;pursuer.lastPlayerFloor=0;g.position.set(26,1.65,58);pursuer.brain.hit(26,58,g.time);g.hp=10000;let usedStairs=false;for(let n=0;n<700;n++){g.time+=.025;updateEnemies(g,.025);if(pursuer.floorY>0&&pursuer.floorY<6)usedStairs=true;assertSilentFloor(pursuer.floorY);}assert('second floor enemy uses stairs to pursue first floor',usedStairs&&Math.abs(pursuer.floorY)<.1&&pursuer.group.position.distanceTo(g.position)<6);assert('pursuer reaches melee range and attacks instead of stopping short',g.hp<10000);load(0);
+ g.input.touch=true;load(2);const pursuer=g.enemies.find(e=>e.kind==='PUNI')!;for(const e of g.enemies)if(e!==pursuer)e.alive=false;pursuer.group.position.set(62,6,38);pursuer.floorY=6;pursuer.lastPlayerFloor=0;g.position.set(26,1.65,62);pursuer.brain.hit(26,62,g.time);g.hp=10000;let usedStairs=false;for(let n=0;n<700;n++){g.time+=.025;updateEnemies(g,.025);if(pursuer.floorY>0&&pursuer.floorY<6)usedStairs=true;assertSilentFloor(pursuer.floorY);}assert('second floor enemy uses stairs to pursue first floor',usedStairs&&Math.abs(pursuer.floorY)<.1&&pursuer.group.position.distanceTo(g.position)<6);assert('pursuer reaches melee range and attacks instead of stopping short',g.hp<10000);load(0);
  for(const challenge of [0,1,2,3]){g.challenge=challenge;load(0);const puni=g.enemies.find(e=>e.kind==='PUNI')!;for(const e of g.enemies)if(e!==puni)e.alive=false;g.clearTransient();puni.group.position.set(26,0,30);g.position.set(26,1.65,35);puni.brain.hit(26,35,g.time);g.time+=1;puni.telegraph=g.time-.1;puni.cooldown=0;updateEnemies(g,.016);assert(`puni fires one aimed projectile difficulty ${challenge}`,g.shots.filter(s=>s.enemy).length===(challenge>=2?1:0));}g.challenge=0;load(0);
- const infantryDistances:number[]=[];for(const challenge of [0,2,3]){g.challenge=challenge;load(0);const infantry=g.enemies.find(e=>e.kind==='INFANTRY')!;for(const e of g.enemies)if(e!==infantry)e.alive=false;infantry.tier=0;infantry.group.position.set(26,0,30);g.position.set(26,1.65,38);infantry.brain.hit(26,38,g.time);g.time+=1;infantry.cooldown=10;const before=infantry.group.position.clone();updateEnemies(g,.1);infantryDistances.push(before.distanceTo(infantry.group.position));}assert('hard infantry moves twenty percent faster',Math.abs(infantryDistances[1]/infantryDistances[0]-1.2)<.001);assert('nightmare infantry moves fifty percent faster',Math.abs(infantryDistances[2]/infantryDistances[0]-1.5)<.001);g.challenge=0;load(0);
+ const infantryDistances:number[]=[];for(const challenge of [1,2,3]){g.challenge=challenge;load(0);const infantry=g.enemies.find(e=>e.kind==='INFANTRY')!;for(const e of g.enemies)if(e!==infantry)e.alive=false;infantry.tier=0;infantry.group.position.set(26,0,30);g.position.set(26,1.65,38);infantry.brain.hit(26,38,g.time);g.time+=1;infantry.cooldown=10;const before=infantry.group.position.clone();updateEnemies(g,.1);infantryDistances.push(before.distanceTo(infantry.group.position));}assert('hard infantry moves twenty percent faster',Math.abs(infantryDistances[1]/infantryDistances[0]-1.2)<.001);assert('nightmare infantry moves fifty percent faster',Math.abs(infantryDistances[2]/infantryDistances[0]-1.5)<.001);g.challenge=0;load(0);
  results.textContent=checks.join('\n')+`\n${checks.length} CHECKS COMPLETE`;
 }}catch(e){results.textContent+='\n'+(e instanceof Error?e.stack:String(e));}
 
@@ -118,7 +119,7 @@ setTimeout(async()=>{if(qs.has('nopointerlock'))Object.defineProperty(document,'
  if(scene==='item'){g.card.show('どくけしを みつけた！','どくを なおせるよ\nどくになったら つかってみよう\nえを おして「つかう」を おそう','🌿');const item=g.world.items.find(i=>i.kind==='ANTIDOTE')!;showPreview(g.renderer,item.mesh);}
  if(scene==='switch'){g.position.set(34,1.65,42);g.camera.position.copy(g.position);g.camera.lookAt(38,1,38);document.getElementById('interact')!.hidden=false;}
  if(scene==='combat1'){g.yaw=g.camera.rotation.y;g.pitch=g.camera.rotation.x;g.state='playing';g.orientationBlocked=false;g.input.fire=true;for(let n=0;n<20;n++)g.update(.016);g.input.fire=false;g.state='review';}
- if(scene==='map'){document.getElementById('mapbutton')!.classList.add('expanded');g.fog.reveal(26,30);g.drawMap();}
+ if(scene==='map'){g.fog.reveal(26,30);g.state='playing';g.pause();}
  if(scene==='infantry'){const enemy=g.enemies.find(e=>e.kind==='INFANTRY')!;g.camera.position.copy(enemy.group.position).add(new T.Vector3(0,1.65,5));g.camera.lookAt(enemy.group.position.clone().add(new T.Vector3(0,1.2,0)));}
  if(scene==='train'){g.world.portal.visible=true;const exit=stages[stage].exit;g.camera.position.set(exit[0]-3,2.7,exit[1]+4);g.camera.lookAt(exit[0],1.2,exit[1]);}
  if(['rail','space','rail-play','space-play','rail-loop','rail-exit'].includes(scene)){g.ride=new RailRide(g);g.ride.progress.elapsed=scene.endsWith('play')?0:rideDurations[stage]*.32;if(scene==='rail-loop'){let f=0,best=1;for(let n=0;n<=400;n++){const y=railFrame(g.ride.curve,n/400).up.y;if(y<best){best=y;f=n/400;}}g.ride.progress.elapsed=rideDurations[stage]*f;}if(scene==='rail-exit')g.ride.progress.elapsed=rideDurations[stage]*.97;g.ride.pose(g.ride.progress.fraction);g.ride.renderHud();if(scene.endsWith('play'))g.card.show('れっしゃで しゅっぱつ！','タップか クリックで てきを うとう！','🚂');}
