@@ -1,4 +1,4 @@
-import {test,expect,type Page,type CDPSession} from '@playwright/test';
+import {test,expect,type Page,type CDPSession} from './fixtures';
 const run=async<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>=>page.evaluate(async source=>{const {game:g}=await import(Array.from(document.scripts).find(s=>s.src.includes('/src/main.ts'))!.src);return await (0,eval)(`(${source})`)(g);},fn.toString());
 type Finger={x:number;y:number;id:number};
 async function event(cdp:CDPSession,type:string,points:Finger[]){await cdp.send('Input.dispatchTouchEvent',{type,touchPoints:points});}

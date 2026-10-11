@@ -1,4 +1,4 @@
-import {test,expect,type Page}from '@playwright/test';
+import {test,expect,type Page}from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return page.evaluate(async source=>{const {game:g}=await import('/src/main.ts');return (0,eval)(`(${source})`)(g);},fn.toString());}
 for(const [name,width,height,touch]of [['PC',1280,720,false],['phone',844,390,true],['tablet',1024,768,true]]as const)test(`easy opening, crowd spacing and immediate healing ${name}`,async({browser})=>{
  const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();await page.locator('#render-loading').waitFor({state:'hidden'});

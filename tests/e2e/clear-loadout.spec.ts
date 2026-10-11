@@ -1,4 +1,4 @@
-import {test,expect,type Page} from '@playwright/test';
+import {test,expect,type Page} from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return page.evaluate(async source=>{const {game}=await import(Array.from(document.scripts).find(s=>s.src.includes('/src/main.ts'))!.src);return (0,eval)(`(${source})`)(game);},fn.toString());}
 for(const touch of [false,true])test(`hard clear carryover ${touch?'tablet':'PC'}`,async({browser})=>{
  test.setTimeout(180000);const context=await browser.newContext({viewport:touch?{width:1024,height:768}:{width:1280,height:720},hasTouch:touch,isMobile:touch}),page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));

@@ -1,8 +1,8 @@
-import {test,expect,type Page} from '@playwright/test';
+import {test,expect,type Page} from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return page.evaluate(async source=>{const {game:g}=await import('/src/main.ts');return (0,eval)(`(${source})`)(g);},fn.toString());}
 for(const [name,width,height,touch] of [['PC',1280,720,false],['phone',844,390,true],['tablet',1024,768,true]] as const){
  test(`boss follows through open doorway without getting stuck ${name}`,async({browser})=>{
-  const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();
+  const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('websocket',w=>w.on('framereceived',f=>{if(String(f.payload).includes('full-reload'))console.log('unexpected test reload',f.payload);}));await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();
   for(const stage of [0,1]){
    const initialSize=await page.evaluate(async stage=>{const {game:g}=await import('/src/main.ts');g.challenge=2;g.loadStage(stage);await g.visuals.ready;for(const e of g.enemies){e.alive=e.kind==='KING PUNI';e.group.visible=e.alive;}for(const i of g.world.items){i.taken=true;i.mesh.visible=false;}g.position.set(stage===0?54:66,1.65,stage===0?34:22);g.safe.copy(g.position);g.yaw=g.pitch=0;g.hp=1000;g.state='playing';return g.enemies.find((e:any)=>e.kind==='KING PUNI').baseScale;},stage);
    if(touch)await page.locator('#interact').click();else await page.keyboard.press('e');
@@ -15,7 +15,7 @@ for(const [name,width,height,touch] of [['PC',1280,720,false],['phone',844,390,t
  });
 }
 for(const [name,width,height,touch]of [['PC',1280,720,false],['small-phone',360,800,true],['phone',390,844,true],['landscape',844,390,true],['tablet',1024,768,true],['large-tablet',1366,1024,true]]as const)test(`map surface fires and pause shows large explored map ${name}`,async({browser})=>{
- const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');if(height>width)await page.setViewportSize({width:height,height:width});await page.locator('#start').click();await page.locator('#card-close').click();await page.locator('#render-loading').waitFor({state:'hidden'});
+ const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('websocket',w=>w.on('framereceived',f=>{if(String(f.payload).includes('full-reload'))console.log('unexpected test reload',f.payload);}));await page.goto('/');if(height>width)await page.setViewportSize({width:height,height:width});await page.locator('#start').click();await page.locator('#card-close').click();await page.locator('#render-loading').waitFor({state:'hidden'});
  await run(page,g=>{for(const e of g.enemies){e.alive=false;e.group.visible=false;}for(const i of g.world.items){i.taken=true;i.mesh.visible=false;}g.hp=100;g.position.set(18,1.65,42);g.safe.copy(g.position);g.yaw=0;g.fog.reveal(18,42);g.drawMap();g.shotTime=0;});
  const rect=(await page.locator('#mapbutton').boundingBox())!,tap={id:8,x:rect.x+rect.width*.5,y:rect.y+rect.height*.6};
  const viewport=page.viewportSize()!,held={id:7,x:viewport.width*.28,y:viewport.height*.65},moved={...held,x:held.x+40};let cdp:any;

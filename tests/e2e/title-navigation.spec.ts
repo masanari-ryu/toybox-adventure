@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures';
 for(const [name,width,height,touch]of [['PC',1280,720,false],['phone',844,390,true],['tablet',1024,768,true]]as const)test(`title links to introduction and back ${name}`,async({browser})=>{
  test.setTimeout(120000);const context=await browser.newContext({viewport:{width,height},hasTouch:touch,isMobile:touch});const page=await context.newPage();
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/',{waitUntil:'domcontentloaded'});

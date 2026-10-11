@@ -1,4 +1,4 @@
-import {test,expect,type Page} from '@playwright/test';
+import {test,expect,type Page} from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return await page.evaluate(async source=>{const {game:g}=await import(Array.from(document.scripts).find(s=>s.src.includes('/src/main.ts'))!.src);return await (0,eval)(`(${source})`)(g);},fn.toString());}
 for(const touch of [false,true])test(`major health and third-floor door combat ${touch?'phone':'PC'}`,async({browser})=>{
  test.setTimeout(150000);const context=await browser.newContext({viewport:touch?{width:844,height:390}:{width:1280,height:720},hasTouch:touch,isMobile:touch}),page=await context.newPage();await page.goto('/',{waitUntil:'domcontentloaded'});await page.locator('#start').click();await page.locator('#card-close').click();

@@ -1,4 +1,4 @@
-import {test,expect,type Page}from '@playwright/test';
+import {test,expect,type Page}from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return page.evaluate(async source=>{const {game:g}=await import('/src/main.ts');return (0,eval)(`(${source})`)(g);},fn.toString());}
 async function setup(page:Page,stage:number,mode=3){await page.evaluate(async({stage,mode})=>{const {game:g}=await import('/src/main.ts');g.challenge=mode;g.arsenal.reset();g.loadStage(stage);await g.visuals.ready;g.state='review';g.hp=1000;for(const item of g.world.items){item.taken=true;item.mesh.visible=false;}for(const e of g.enemies){e.alive=e.kind==='KING PUNI';e.group.visible=e.alive;}g.startBoss();if(stage===2){g.coreEnabled=g.bossRoomEntered=true;}g.enemies.find((e:any)=>e.kind==='KING PUNI')!.encountered=true;},{stage,mode});}
 for(const [name,w,h,touch]of [['PC',1280,720,false],['phone',844,390,true],['tablet',1024,768,true]]as const)test(`three distinct boss fights ${name}`,async({browser})=>{

@@ -1,4 +1,4 @@
-import {test,expect,type Page,type CDPSession} from '@playwright/test';
+import {test,expect,type Page,type CDPSession} from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return page.evaluate(async source=>{const {game}=await import(Array.from(document.scripts).find(s=>s.src.includes('/src/main.ts'))!.src);return (0,eval)(`(${source})`)(game);},fn.toString());}
 test('nightmare durability, samurai reward, cursed swing and boss exception',async({page})=>{
  test.setTimeout(180000);const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();await expect(page.locator('#render-loading')).toBeHidden({timeout:30000});
@@ -23,7 +23,7 @@ for(const mobile of [false,true])test(`murasame mist rendering budget ${mobile?'
  console.log('mist rendering',mobile?'phone':'PC',metrics);expect(metrics).toMatchObject({extraCalls:6,geometries:1,textures:1});expect((metrics as any).p95).toBeLessThan(75);await page.screenshot({path:`screenshots/cursed/${mobile?'phone':'PC'}-mist-confirmed.png`});await context.close();
 });
 test('rail still supports selected potion and elixir',async({page})=>{
- await page.goto('/?train=outdoor');await page.locator('#start').click();await run(page,g=>{g.hp=35;g.supplies.potions=2;g.supplies.elixirs=1;g.selectedItem=0;g.updateHud();});await page.locator('#item-use').click();await expect.poll(()=>run(page,g=>g.supplies.potions)).toBe(1);expect(await run(page,g=>g.hp)).toBe(65);
+ await page.goto('/?train=outdoor');await page.locator('#start').click();await run(page,g=>{g.hp=35;g.supplies.potions=2;g.supplies.elixirs=1;g.selectedItem=0;g.updateHud();});await page.locator('#item-use').click();await expect.poll(()=>run(page,g=>g.supplies.potions)).toBe(1);expect(await run(page,g=>g.hp)).toBe(75);
  await page.locator('#item-select').click();await page.locator('#pick-elixir').click();await page.locator('#item-use').click();await expect.poll(()=>run(page,g=>g.supplies.elixirs)).toBe(0);expect(await run(page,g=>g.hp)).toBe(100);expect(await run(page,g=>!!g.ride)).toBe(true);
 });
 async function touch(cdp:CDPSession,type:string,points:Finger[]){await cdp.send('Input.dispatchTouchEvent',{type,touchPoints:points});}

@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures';
 
 async function game(page:any){
  await page.goto('/');await expect(page.locator('#render-loading')).toBeHidden({timeout:30000});

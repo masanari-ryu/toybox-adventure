@@ -1,4 +1,4 @@
-import {test,expect}from '@playwright/test';import {writeFileSync}from 'node:fs';
+import {test,expect}from './fixtures';import {writeFileSync}from 'node:fs';
 test('export original toy portraits',async({page})=>{
  test.skip(process.env.UPDATE_CATALOG!=='1','Portrait generation is an explicit asset task');test.setTimeout(180000);await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();
  const entries:[string,string,number][]=[['weapon-pop','POP',0],['weapon-bubble','BUBBLE',1],['weapon-thunder','THUNDER',2],['weapon-katana','KATANA',3],['weapon-rifle','ASSAULT RIFLE',4],['weapon-cannon','CANNON',5],['weapon-thunder-plus','THUNDER PLUS',6],['weapon-murasame','MURASAME',-2],['item-potion','POTION',-1],['item-big-potion','BIG POTION',-1],['item-antidote','ANTIDOTE',-1],['item-elixir','ELIXIR',-1],['item-parupun','PARUPUN',-1],['item-lava','LAVA CHARM',-1],['item-armor','ARMOR CELL',-1],['item-candy','CANDY',-1],['item-rainbow','RAINBOW',-1]];

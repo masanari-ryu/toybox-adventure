@@ -1,4 +1,4 @@
-import {test,expect,type Page} from '@playwright/test';
+import {test,expect,type Page} from './fixtures';
 async function run<T>(page:Page,fn:(g:any)=>T|Promise<T>):Promise<T>{return page.evaluate(async source=>{const {game}=await import(Array.from(document.scripts).find(s=>s.src.includes('/src/main.ts'))!.src);return (0,eval)(`(${source})`)(game);},fn.toString());}
 for(const [name,width,height,mobile]of [['PC',1280,720,false],['phone',844,390,true],['tablet',1024,768,true]]as const)test(`nightmare boss phases and safe arena ${name}`,async({browser})=>{
  test.setTimeout(150000);const context=await browser.newContext({viewport:{width,height},hasTouch:mobile,isMobile:mobile}),page=await context.newPage(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#start').click();await page.locator('#card-close').click();
