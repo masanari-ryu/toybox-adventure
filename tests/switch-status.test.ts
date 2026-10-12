@@ -1,0 +1,2 @@
+import {it,expect}from 'vitest';import {switchStatus}from '../src/ui/SwitchStatus';
+it('switch state communicates both current state and the next action with distinct lamp colors',()=>{expect(switchStatus(false).text).toBe('しまった · あける');expect(switchStatus(true).text).toBe('あいた · しめる');expect(switchStatus(false).color).not.toBe(switchStatus(true).color);for(const value of [false,true])expect(switchStatus(value).text).not.toMatch(/[A-Za-z\u4e00-\u9fff]/);});
