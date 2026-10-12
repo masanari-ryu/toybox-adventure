@@ -1,0 +1,2 @@
+import {it,expect}from 'vitest';import {bossDamage,bossSettings}from '../src/game/boss/BossSettings';
+it('only normal final boss damage changes; all other stage/mode combinations retain their values',()=>{for(let stage=0;stage<3;stage++)for(let mode=0;mode<4;mode++){const original=bossSettings.damage[stage]*(mode>=2?1.1:1);expect(bossDamage(stage,mode)).toBeCloseTo(original*(stage===2&&mode===1?.8:1));}expect(bossDamage(2,1)).toBe(24);});

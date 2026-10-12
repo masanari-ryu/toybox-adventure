@@ -10,3 +10,6 @@ export const bossSettings={
 export function bossHealth(challenge:number,current:number){return current*bossSettings.hpMultiplier[challenge];}
 export function bossSecondForm(hp:number,max:number){return hp<=max*.5;}
 export function rulerAttack(distance:number,second:boolean,nightmare:boolean,cycle:number){return distance<bossSettings.ruler.near?'slash':distance>=bossSettings.ruler.far?'fan':nightmare&&second&&cycle%2?'advance':'aim';}
+
+/** Only normal's final boss receives a twenty-percent direct-attack reduction. */
+export function bossDamage(stage:number,challenge:number){return bossSettings.damage[stage]*(challenge>=2?1.1:1)*(stage===2&&challenge===1?.8:1);}
