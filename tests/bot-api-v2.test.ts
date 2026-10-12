@@ -1,0 +1,22 @@
+import {expect,it} from 'vitest';
+import {BotApi,compactState,type FullState} from '../src/debug/BotApi';
+const screen={x:1,y:2,onScreen:true};
+function full(){return {state:'playing',stageIndex:2,hp:90,position:{x:1,y:2,z:3},yaw:0,pitch:0,weapon:2,energy:80,potions:1,bigPotions:2,antidotes:3,elixirs:4,parupuns:5,score:100,keyCount:2,objective:'すすもう',checkpoint:{stageIndex:2,hp:100,potions:1},lastDamage:null,pickups:[],objectiveHint:[],inventory:{},enemies:Array.from({length:60},(_,n)=>({id:`enemy-${n}`,kind:'PUNI',hp:10,maxHp:10,distance:59-n,lineOfSight:true,dormant:false,position:{x:0,y:0,z:0},screen,attack:{state:'Chase'}})),goals:{switches:[{id:0,screen},{id:1,screen}],doors:[{id:0,open:true,screen},{id:1,open:false,screen}],items:[{id:0,taken:true,screen},{id:1,taken:false,screen}]},train:null,events:Array.from({length:50},(_,n)=>({type:`${n}`}))} as unknown as FullState;}
+it('compact state contains the twelve nearest live enemies and strips expensive fields',()=>{const f=full();f.enemies[59].hp=0;const c=compactState(f,[0]);expect(c.enemies).toHaveLength(12);expect(c.enemies.map(e=>e.distance)).toEqual(Array.from({length:12},(_,n)=>n+1));expect(Object.keys(c.enemies[0])).toEqual(['id','kind','hp','maxHp','distance','lineOfSight','dormant','state','screen']);expect(c.goals.switches).toEqual([{id:1}]);expect(c.goals.doors).toEqual([{id:1,open:false}]);expect(c.goals.items).toEqual([{id:1,taken:false}]);expect(c.events).toHaveLength(10);expect(f.enemies).toHaveLength(60);expect(f.goals.switches[0].screen).toEqual(screen);});
+it('compact rail state includes at most ten visible live targets, no duplicated rail enemies',()=>{const f=full();f.train={progress:.2,elapsed:1,kills:0,targets:Array.from({length:40},(_,n)=>({id:n,hp:n===0?0:1,position:{x:1,y:1,z:1},distance:n,screen:{...screen,onScreen:n%2===0}}))};const c=compactState(f);expect(c.enemies).toEqual([]);expect(c.train!.targets).toHaveLength(10);expect(c.train!.targets[0].id).toBe(2);expect(c.train!.targets.every(t=>t.hp>0&&t.screen.onScreen)).toBe(true);});
+it('paused, dead, invalid screen and cooldown firing return explicit results',()=>{
+ const api=Object.create(BotApi.prototype) as BotApi;
+ (api as any).g={state:'paused'};expect(api.fireAt(0,0)).toEqual({fired:false,reason:'paused'});expect(api.fireAtEnemy('x')).toEqual({fired:false,reason:'paused'});
+ (api as any).g={state:'playing',visuals:{preparing:false},orientationBlocked:false,renderer:{domElement:{getBoundingClientRect:()=>({left:0,top:0,right:100,bottom:100})}},time:0,shotTime:1,enemies:[]};
+ expect(api.fireAt(-1,50)).toEqual({fired:false,reason:'offscreen'});expect(api.fireAt(50,50)).toEqual({fired:false,reason:'cooldown'});expect(api.fireAtEnemy('missing')).toEqual({fired:false,reason:'dead'});
+});
+it('restart rejects early without waiting or mutating the checkpoint',async()=>{const api=Object.create(BotApi.prototype) as BotApi;(api as any).g={state:'over',deathReadyAt:performance.now()+700};const r=await api.restart();expect(r.ok).toBe(false);if(!r.ok){expect(r.reason).toBe('too-early');expect(r.waitMs).toBeGreaterThan(650);}});
+
+import {walkingPath}from '../src/debug/BotNavigation';
+import {configureStage}from '../src/world/layout';
+import {doors}from '../src/world/Threats';
+it('routes onto ramps from their lower edge instead of assuming the overhead floor is reachable',()=>{configureStage(2);doors[0].open=true;doors[2].open=true;const p=walkingPath({x:58,y:0,z:42.74},42,50,2,false);expect(p).not.toBeNull();expect(p!.some(v=>v.z===56&&v.y===0&&v.x<=34)).toBe(true);});
+
+it('does not report arrival while paused or dead, even when already at the destination',async()=>{for(const state of ['paused','over']){const api=Object.create(BotApi.prototype) as BotApi;(api as any).g={state,stageIndex:0,position:{x:10,y:1.65,z:42},orientationBlocked:false};(api as any).damageTotal=0;(api as any).helper=async()=>0;const r=await api.walkTo(10,42);expect(r.arrived).toBe(false);expect(r.reason).toBe(state==='over'?'dead':'paused');}});
+
+it('combat movement approaches to the current melee reach instead of stopping at gun distance',()=>{const api=Object.create(BotApi.prototype) as BotApi;(api as any).g={position:{x:0,z:0},input:{weapon:3}};(api as any).canWalkTo=()=>true;const e={group:{position:{x:8,z:0}},kind:'PUNI',radius:.85,baseScale:1};expect((api as any).combatMovement(e,0,true)?.x).toBeGreaterThan(0);(api as any).g.input.weapon=0;expect((api as any).combatMovement(e,0,true)).toBe(null);});
