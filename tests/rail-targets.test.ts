@@ -1,0 +1,2 @@
+import {it,expect}from 'vitest';import {railTargetCount}from '../src/rail/RailTargets';import {rideDurations}from '../src/rail/RailCourse';
+it('caps normal and hard targets at ninety without changing easy, nightmare or course durations',()=>{expect([0,1,2].map(s=>railTargetCount(s,0))).toEqual([40,56,72]);expect([0,1,2].map(s=>railTargetCount(s,1))).toEqual([60,84,90]);expect([0,1,2].map(s=>railTargetCount(s,2))).toEqual([80,90,90]);expect([0,1,2].map(s=>railTargetCount(s,3))).toEqual([200,280,360]);expect(rideDurations).toEqual([20*4/1.5,23*4/1.5,24*4/1.5]);});

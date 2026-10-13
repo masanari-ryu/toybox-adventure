@@ -1,15 +1,24 @@
 import type {Game} from './Game';
 import type {Enemy} from './Enemy';
-import {sightAt} from '../world/layout';
+import {sightAt,cell} from '../world/layout';
+import {stages} from '../stages/Stages';
 /** Only easy receives these safety margins; other difficulty and equipment values stay intact. */
 export const easySettings={opening:4,speed:.75,damage:.65,hitGap:.95,meleeCadence:1.5,rangedCadence:1.4,warning:1.25,attackers:2,potion:40,bigPotion:80,healingGrace:1.2} as const;
 export function beginEasyOpening(g:Game){
  if(g.challenge!==0||g.stageIndex!==0||g.practice||g.ride)return;
  for(const e of g.enemies)if(e.alive&&!['KING PUNI','SAMURAI'].includes(e.kind)){e.group.userData.easyWakeAt=g.stageTime+easySettings.opening;e.group.visible=false;}
 }
-export function easyDormant(e:Enemy){return e.group.userData?.easyWakeAt!==undefined;}
+export const hardCastleOpening={seconds:5,radius:24*cell} as const;
+/** One map cell is four world units. Only hard castle entry receives this grace period. */
+export function beginHardCastleOpening(g:Game){
+ if(g.challenge!==2||g.stageIndex!==2||g.practice||g.ride)return;
+ const [x,z]=stages[2].start;
+ for(const e of g.enemies)if(e.alive&&!['KING PUNI','SAMURAI'].includes(e.kind)&&Math.hypot(e.group.position.x-x,e.group.position.z-z)<=hardCastleOpening.radius){e.group.userData.hardWakeAt=g.stageTime+hardCastleOpening.seconds;e.group.visible=false;}
+}
+export function easyDormant(e:Enemy){return e.group.userData?.easyWakeAt!==undefined||e.group.userData?.hardWakeAt!==undefined;}
 export function wakeEasyEnemy(g:Game,e:Enemy){
  if(!easyDormant(e))return true;
+ if(e.group.userData.hardWakeAt!==undefined){if(g.stageTime<e.group.userData.hardWakeAt)return false;delete e.group.userData.hardWakeAt;e.group.visible=true;return true;}
  if(g.stageTime<e.group.userData.easyWakeAt)return false;
  delete e.group.userData.easyWakeAt;e.group.visible=true;e.cooldown=Math.max(e.cooldown,1.5);return true;
 }

@@ -1,0 +1,2 @@
+import {it,expect}from 'vitest';import {batteryMarkers}from '../src/ui/BatteryMarker';
+it('only uncollected batteries show a floor-aware location marker; no fog requirement',()=>{const items=[{kind:'BATTERY',taken:false,x:90,z:18,mesh:{position:{y:13.3},userData:{baseY:12}}},{kind:'BATTERY',taken:true,x:92,z:18,mesh:{position:{y:13.3},userData:{baseY:12}}},{kind:'POTION',taken:false,x:30,z:30,mesh:{position:{y:1.3},userData:{}}}];expect(batteryMarkers(items)).toEqual([{x:90,z:18,feet:12}]);items[0].taken=true;expect(batteryMarkers(items)).toEqual([]);});
