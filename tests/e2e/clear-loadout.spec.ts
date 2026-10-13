@@ -15,7 +15,7 @@ for(const touch of [false,true])test(`hard clear carryover ${touch?'tablet':'PC'
   await page.locator('#pause').click();await page.locator('#title-return').click();await page.locator('#challenge-options button').filter({hasText:mode}).click();await page.locator('#start').click();await page.locator('#card-close').click();
   expect(await run(page,equipment)).toEqual(mode==='むずかしい'?{choices:[2,3],level:1,weapon:2,potions:9,big:3,antidotes:5,armor:60}:{choices:[0],level:0,weapon:0,potions:1,big:0,antidotes:0,armor:0});
  }
- // Restarting a checkpoint must not grant another copy of saved consumables.
- await run(page,g=>{g.supplies.potions=2;g.hp=1;g.hurtTime=0;g.supplies.armor=0;g.hurt(10);g.deathReadyAt=0;g.start();});expect(await run(page,g=>g.supplies.potions)).toBe(2);
+ // A retry restores the original entry inventory, without adding a second copy of the saved loadout.
+ await run(page,g=>{g.supplies.potions=2;g.hp=1;g.hurtTime=0;g.supplies.armor=0;g.hurt(10);g.deathReadyAt=0;g.start();});expect(await run(page,g=>g.supplies.potions)).toBe(9);
  expect(errors).toEqual([]);await context.close();
 });
